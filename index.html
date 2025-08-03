@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: sans-serif;
-            font-size: 12px;
+            font-size: 12px; /* All fonts set to 12px */
             background-color: #f0f0f0;
             color: #333;
             padding: 10px;
@@ -20,7 +20,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 1px;
-            border: 1px solid #000;
+            border: none; /* Removed the black outline */
             padding: 1px;
         }
         .month-cell {
@@ -72,7 +72,7 @@
             margin-bottom: 10px;
         }
         .scorecard-title {
-            font-size: 12px;
+            font-size: 12px; /* All fonts set to 12px */
             font-weight: normal;
             text-decoration: underline;
             margin: 0;
@@ -80,7 +80,7 @@
         #scorecard-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            font-size: 12px;
+            font-size: 12px; /* All fonts set to 12px */
             border: 1px solid #ccc;
         }
         .scorecard-item {
@@ -102,7 +102,7 @@
             background-color: #e0e0e0;
             cursor: pointer;
             border-radius: 5px;
-            font-size: 12px;
+            font-size: 12px; /* All fonts set to 12px */
         }
         #sort-button:hover {
             background-color: #d0d0d0;
@@ -116,7 +116,7 @@
             display: flex;
             width: 100%;
             height: 24.75px; /* Same height as month cells */
-            border: 1px solid #000;
+            border: none; /* Removed the black outline */
             gap: 1px;
             padding: 1px;
         }
@@ -129,8 +129,8 @@
 </head>
 <body>
     <div class="container">
-        <p>visually trying to answer the question, 'where are you from?' The data includes cities that I have lived in for more than 3 consequetive months, in chronological order. 
-            <br> Each square represents one month. Each color represents a city.</p>
+        <p>Trying to answer the question, 'where are you from?' visually.
+            <br>Each square represents one month. Each color represents a city.</p>
         <div id="timeline-grid"></div>
         <div id="scorecard-container">
             <div id="scorecard-header">
