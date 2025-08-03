@@ -37,7 +37,7 @@
             background-color: #000;
             color: #fff;
             text-align: center;
-            padding: 4px;
+            padding: 4-px;
             position: absolute;
             z-index: 10;
             bottom: 125%;
@@ -101,7 +101,7 @@
             border: 1px solid #ccc;
             background-color: #e0e0e0;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 5-px;
             font-size: 12px; /* All fonts set to 12px */
         }
         #sort-button:hover {
@@ -149,22 +149,22 @@
             // Data array to hold city information and colors
             const timelineData = [
                 // Combined Qatar and UAE into a single 'Gulf' country category
-                { name: "Doha, Qatar", country: "Gulf (Qatar and UAE)", startYear: 1992, startMonth: 5, endYear: 1996, color: "#008080" },
-                { name: "Abu Dhabi, UAE", country: "Gulf (Qatar and UAE)", startYear: 1997, endYear: 2001, color: "#00CED1" },
-                { name: "Lucknow, India", country: "India", startYear: 2002, endYear: 2002, color: "#0000FF" },
-                { name: "Dehradun, India", country: "India", startYear: 2003, endYear: 2009, color: "#4B0082" },
-                { name: "Ahmedabad, India", country: "India", startYear: 2010, endYear: 2014, color: "#800080" },
-                { name: "Mumbai, India", country: "India", startYear: 2014, endYear: 2015, color: "#FF00FF" },
-                { name: "Bangalore, India", country: "India", startYear: 2016, endYear: 2018, color: "#FF1493" },
-                { name: "San Francisco, USA", country: "USA", startYear: 2019, endYear: 2023, color: "#8B0000" },
-                { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, endYear: 2025, color: "#FF0000" },
+                { name: "Doha, Qatar", country: "Gulf (Qatar and UAE)", startYear: 1992, startMonth: 5, endYear: 1996, endMonth: 12, color: "#008080" },
+                { name: "Abu Dhabi, UAE", country: "Gulf (Qatar and UAE)", startYear: 1997, startMonth: 1, endYear: 2002, endMonth: 3, color: "#00CED1" },
+                { name: "Lucknow, India", country: "India", startYear: 2002, startMonth: 4, endYear: 2003, endMonth: 3, color: "#0000FF" },
+                { name: "Dehradun, India", country: "India", startYear: 2003, startMonth: 4, endYear: 2010, endMonth: 3, color: "#4B0082" },
+                { name: "Ahmedabad, India", country: "India", startYear: 2010, startMonth: 6, endYear: 2014, endMonth: 6, color: "#800080" },
+                { name: "Mumbai, India", country: "India", startYear: 2014, startMonth: 7, endYear: 2015, endMonth: 6, color: "#FF00FF" },
+                { name: "Bangalore, India", country: "India", startYear: 2015, startMonth: 10, endYear: 2019, endMonth: 7, color: "#FF1493" },
+                { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 1, color: "#8B0000" },
+                { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 2, endYear: 2025, endMonth: 7, color: "#FF0000" },
                 { name: "Goa, India (Internship)", country: "India", color: "#FFA500", isInternship: true, internshipYear: 2012, internshipMonths: [5, 6, 7] },
-                { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [8, 9, 10] }
+                { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [7, 8, 9] }
             ];
 
-            // Set the new, correct start and end dates
+            // The timeline begins in May 1992 and ends in August 2025.
             const startYear = 1992;
-            const startMonthIndex = 5; // June is the 6th month, 0-indexed is 5
+            const startMonthIndex = 4; // May is the 5th month, 0-indexed is 4
             const endYear = 2025;
             const endMonthIndex = 7; // August is the 8th month, 0-indexed is 7
             
@@ -178,14 +178,16 @@
             let isSortedByTime = false; // Initial state is chronological
 
             // Get specific city data objects for easy access
-            const lucknowData = timelineData.find(d => d.name.includes("Lucknow"));
+            const lucknowData = timelineData.find(d => d.name.includes("Lucknow") && d.startYear === 2002);
             const abuDhabiData = timelineData.find(d => d.name.includes("Abu Dhabi") && !d.isInternship);
             const dohaData = timelineData.find(d => d.name.includes("Doha"));
             const dehradunData = timelineData.find(d => d.name.includes("Dehradun"));
             const stockholmData = timelineData.find(d => d.name.includes("Stockholm"));
             const ahmedabadData = timelineData.find(d => d.name.includes("Ahmedabad"));
             const mumbaiData = timelineData.find(d => d.name.includes("Mumbai"));
+            const bangaloreData = timelineData.find(d => d.name.includes("Bangalore"));
             const sanFranciscoData = timelineData.find(d => d.name.includes("San Francisco"));
+            const dubaiData = timelineData.find(d => d.name.includes("Dubai"));
             
             // Object to store the total months for each city and country
             const cityMonths = {};
@@ -200,7 +202,6 @@
                 "Sweden": "#FF0000"
             };
 
-
             // Function to determine which city tile should be displayed for a given month index
             function getCityForMonth(monthIndex) {
                 // Adjust the monthIndex to get the actual year and month
@@ -209,84 +210,111 @@
                 const currentMonth = totalMonthCountFromStart % 12; // 0-indexed month
 
                 // Check for internship months first, as they have the highest priority
-                const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth + 1));
-                if (internship) {
-                    return internship;
+                const goaInternship = timelineData.find(d => d.name === "Goa, India (Internship)");
+                if (goaInternship && currentYear === goaInternship.internshipYear && goaInternship.internshipMonths.includes(currentMonth + 1)) {
+                    return goaInternship;
                 }
                 
-                // --- Specific timeline logic ordered by date ---
+                // --- Chronological timeline logic ---
                 
-                // San Francisco (Aug 2019 - Jan 2023)
-                if ((currentYear === 2019 && currentMonth >= 7) ||
-                    (currentYear >= 2020 && currentYear <= 2022) ||
-                    (currentYear === 2023 && currentMonth === 0)) {
-                    return sanFranciscoData;
-                }
-
                 // Stockholm (Mar 2023 - Aug 2025)
-                if ((currentYear === 2023 && currentMonth >= 2) ||
-                    currentYear === 2024 ||
-                    (currentYear === 2025 && currentMonth <= 7)) {
-                    // Check for Lucknow breaks within Stockholm
-                    if (currentMonth === 6 && (currentYear === 2023 || currentYear === 2024)) {
+                if (currentYear >= stockholmData.startYear && (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonthIndex))) {
+                    const stockholmStartMonthAbsolute = (stockholmData.startYear * 12) + (stockholmData.startMonth - 1);
+                    const currentMonthAbsolute = (currentYear * 12) + currentMonth;
+                    const monthsInStockholmPeriod = currentMonthAbsolute - stockholmStartMonthAbsolute;
+
+                    if (monthsInStockholmPeriod > 0 && monthsInStockholmPeriod % 12 === 11) {
                         return lucknowData;
                     }
                     return stockholmData;
                 }
 
-                // Dehradun with breaks (2003-2009)
-                if (currentYear >= 2003 && currentYear <= 2009) {
-                    if (currentMonth === 5 || currentMonth === 6) { // June, July
-                        return lucknowData;
-                    }
-                    if (currentMonth === 10 || currentMonth === 11) { // November, December
-                        return abuDhabiData;
-                    }
-                    return dehradunData;
+                // San Francisco (Aug 2019 - Feb 2023)
+                else if (currentYear >= sanFranciscoData.startYear && (currentYear < 2023 || (currentYear === 2023 && currentMonth <= 0))) {
+                    return sanFranciscoData;
                 }
                 
-                // Abu Dhabi with breaks (1997-2001)
-                if (currentYear >= 1997 && currentYear <= 2001) {
-                    if (currentMonth === 6) { // July
+                // Mumbai (July 2014 - Jun 2015)
+                else if (currentYear >= 2014 && (currentYear < 2015 || (currentYear === 2015 && currentMonth <= 5))) {
+                    return mumbaiData;
+                }
+                
+                // Dubai (Internship) - July, August, September 2015 (This must be checked after Mumbai)
+                else if (currentYear === dubaiData.internshipYear && dubaiData.internshipMonths.includes(currentMonth + 1)) {
+                    return dubaiData;
+                }
+                
+                // Bangalore (Oct 2015 - Aug 2019)
+                else if (currentYear >= bangaloreData.startYear && (currentYear < 2019 || (currentYear === 2019 && currentMonth <= 6))) {
+                     return bangaloreData;
+                }
+
+                // Ahmedabad (June 2010 - June 2014)
+                else if (currentYear >= 2010 && (currentYear < 2014 || (currentYear === 2014 && currentMonth <= 5))) {
+                    const ahmedabadStartMonthAbsolute = (2010 * 12) + 5;
+                    const currentMonthAbsolute = (currentYear * 12) + currentMonth;
+                    const monthsInAhmedabadPeriod = currentMonthAbsolute - ahmedabadStartMonthAbsolute;
+                    
+                    if (monthsInAhmedabadPeriod > 0 && monthsInAhmedabadPeriod % 6 === 0) {
                         return lucknowData;
+                    }
+                    return ahmedabadData;
+                }
+
+                // Special case for April and May 2010
+                else if (currentYear === 2010) {
+                    if (currentMonth === 3) { // April 2010
+                        return lucknowData;
+                    }
+                    if (currentMonth === 4) { // May 2010
+                        return abuDhabiData;
+                    }
+                }
+                
+                // Dehradun (April 2003 - March 2010)
+                else if (currentYear >= 2003 && (currentYear < 2010 || (currentYear === 2010 && currentMonth <= 2))) {
+                    const month = currentMonth + 1; // 1-indexed month
+                    if (month === 6 || month === 12) { // June or December
+                        return lucknowData;
+                    } else if (month === 7 || month === 1) { // July or January
+                        return abuDhabiData;
+                    } else {
+                        // All other months are Dehradun
+                        return dehradunData;
+                    }
+                }
+                
+                // Lucknow (April 2002 - March 2003)
+                else if (currentYear >= 2002 && (currentYear < 2003 || (currentYear === 2003 && currentMonth <= 2))) {
+                    return lucknowData;
+                }
+
+                // Abu Dhabi (Jan 1997 - March 2002)
+                else if (currentYear >= 1997 && (currentYear < 2002 || (currentYear === 2002 && currentMonth <= 2))) {
+                    const abuDhabiStartMonthAbsolute = (1997 * 12) + 0;
+                    const currentMonthAbsolute = (currentYear * 12) + currentMonth;
+                    const monthsInAbuDhabiPeriod = currentMonthAbsolute - abuDhabiStartMonthAbsolute;
+                    
+                    if (monthsInAbuDhabiPeriod > 0 && monthsInAbuDhabiPeriod % 12 === 11) {
+                         return lucknowData;
                     }
                     return abuDhabiData;
                 }
-
-                // Doha with breaks (1992-1996)
-                if (currentYear >= 1992 && currentYear <= 1996) {
-                    if (currentMonth === 6) { // July
+                
+                // Doha (May 1992 - Dec 1996)
+                else if (currentYear >= 1992 && (currentYear < 1997 || (currentYear === 1996 && currentMonth <= 11))) {
+                    const dohaStartMonthAbsolute = (1992 * 12) + 4;
+                    const currentMonthAbsolute = (currentYear * 12) + currentMonth;
+                    const monthsInDohaPeriod = currentMonthAbsolute - dohaStartMonthAbsolute;
+                    
+                    if (monthsInDohaPeriod > 0 && monthsInDohaPeriod % 12 === 11) {
                         return lucknowData;
                     }
                     return dohaData;
                 }
 
-                // Ahmedabad with breaks (2010-2014)
-                if (currentYear >= 2010 && currentYear <= 2013) {
-                    if (currentMonth === 6) { // July
-                        return lucknowData;
-                    }
-                    return ahmedabadData;
-                }
-                
-                // Special case for 2014 (Ahmedabad/Mumbai split) and 2015 (Mumbai)
-                if (currentYear === 2014) {
-                    if (currentMonth >= 9) { // Oct-Dec
-                        return mumbaiData;
-                    }
-                    if (currentMonth === 6) { // July
-                        return lucknowData;
-                    }
-                    return ahmedabadData;
-                }
-                // Handle 2015 separately
-                if (currentYear === 2015 && currentMonth <= 6) { // Jan-July
-                    return mumbaiData;
-                }
-
-                // The default/catch-all for other cities
-                const city = timelineData.find(d => !d.isInternship && currentYear >= d.startYear && currentYear <= d.endYear);
-                return city || { name: "Unknown", color: "#ccc" };
+                // Default return if no conditions are met
+                return { name: "Unknown", color: "#ccc" };
             }
             
             // Loop through all months and build the timeline grid
@@ -395,7 +423,6 @@
                     countryBar.appendChild(segmentDiv);
                 });
             }
-
 
             // Event listener for the sort button
             sortButton.addEventListener('click', () => {
