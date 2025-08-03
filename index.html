@@ -164,9 +164,9 @@
                 { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [7, 8, 9] }
             ];
 
-            // The timeline begins in May 1992 and ends in August 2025.
+            // The timeline begins in June 1992 and ends in August 2025.
             const startYear = 1992;
-            const startMonthIndex = 4; // May is the 5th month, 0-indexed is 4
+            const startMonthIndex = 5; // June is the 6th month, 0-indexed is 5
             const endYear = 2025;
             const endMonthIndex = 7; // August is the 8th month, 0-indexed is 7
             
@@ -214,6 +214,11 @@
             
             // Function to determine which city tile should be displayed for a given month index
             function getCityForMonth(monthIndex) {
+                // If it's the very first tile, return Lucknow
+                if (monthIndex === 0) {
+                    return lucknowData;
+                }
+
                 // Adjust the monthIndex to get the actual year and month
                 const totalMonthCountFromStart = monthIndex + startMonthIndex;
                 const currentYear = startYear + Math.floor(totalMonthCountFromStart / 12);
@@ -320,9 +325,9 @@
                     return abuDhabiData;
                 }
                 
-                // Doha (May 1992 - Dec 1996)
+                // Doha (June 1992 - Dec 1996)
                 if (currentYear >= 1992 && (currentYear < 1997 || (currentYear === 1996 && currentMonth <= 11))) {
-                    const dohaStartMonthAbsolute = (1992 * 12) + 4;
+                    const dohaStartMonthAbsolute = (1992 * 12) + 5;
                     const currentMonthAbsolute = (currentYear * 12) + currentMonth;
                     const monthsInDohaPeriod = currentMonthAbsolute - dohaStartMonthAbsolute;
                     
