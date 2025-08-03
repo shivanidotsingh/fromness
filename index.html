@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fromness</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 10px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        #timeline-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1px;
+            border: 1px solid #000;
+            padding: 1px;
+        }
+        .month-cell {
+            width: 24.75px;
+            height: 24.75px;
+            border: 1px solid #ccc;
+            position: relative;
+            cursor: default;
+        }
+        /* Tooltip styling for hover effect */
+        .month-cell .tooltip-text {
+            visibility: hidden;
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 4px;
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid #fff;
+        }
+        .month-cell:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Scorecard styling */
+        #scorecard-container {
+            margin-top: 30px;
+        }
+        #scorecard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #scorecard-header h2 {
+            font-size: 16px;
+            font-weight: normal;
+            text-decoration: underline;
+            margin: 0;
+        }
+        #scorecard-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            font-size: 14px;
+            border: 1px solid #ccc;
+        }
+        .scorecard-item {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-left: none;
+            white-space: nowrap;
+            text-align: left; /* Left-aligned text */
+        }
+        .scorecard-item:nth-child(6n+1) {
+             border-left: 1px solid #ccc;
+        }
+        
+        /* Sorting button styling */
+        #sort-button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        #sort-button:hover {
+            background-color: #d0d0d0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="timeline-grid"></div>
+        <div id="scorecard-container">
+            <div id="scorecard-header">
+                <h2>Cumulative time lived</h2>
+                <button id="sort-button">Sort by Time Lived</button>
+            </div>
+            <div id="scorecard-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // Data array to hold city information and colors
+            const timelineData = [
+                { name: "Doha, Qatar", startYear: 1992, startMonth: 5, endYear: 1996, color: "#008080" },
+                { name: "Abu Dhabi, UAE", startYear: 1997, endYear: 2001, color: "#00CED1" },
+                { name: "Lucknow, India", startYear: 2002, endYear: 2002, color: "#0000FF" },
+                { name: "Dehradun, India", startYear: 2003, endYear: 2009, color: "#4B0082" },
+                { name: "Ahmedabad, India", startYear: 2010, endYear: 2014, color: "#800080" },
+                { name: "Mumbai, India", startYear: 2014, endYear: 2015, color: "#FF00FF" },
+                { name: "Bangalore, India", startYear: 2016, endYear: 2018, color: "#FF1493" },
+                { name: "San Francisco, USA", startYear: 2019, endYear: 2023, color: "#8B0000" },
+                { name: "Stockholm, Sweden", startYear: 2023, endYear: 2025, color: "#FF0000" },
+                { name: "Goa, India (Internship)", color: "#FFA500", isInternship: true, internshipYear: 2012, internshipMonths: [5, 6, 7] },
+                { name: "Dubai, UAE (Internship)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [8, 9, 10] } // Internship months are now Aug, Sep, Oct (8, 9, 10)
+            ];
+
+            // Set the new, correct start and end dates
+            const startYear = 1992;
+            const startMonthIndex = 5; // June is the 6th month, 0-indexed is 5
+            const endYear = 2025;
+            const endMonthIndex = 7; // August is the 8th month, 0-indexed is 7
+            
+            const totalMonths = (endYear - startYear) * 12 + (endMonthIndex - startMonthIndex + 1);
+
+            const gridContainer = document.getElementById('timeline-grid');
+            const scorecardGrid = document.getElementById('scorecard-grid');
+            const sortButton = document.getElementById('sort-button');
+            
+            let isSortedByTime = false; // Initial state is chronological
+
+            // Get specific city data objects for easy access
+            const lucknowData = timelineData.find(d => d.name.includes("Lucknow"));
+            const abuDhabiData = timelineData.find(d => d.name.includes("Abu Dhabi") && !d.isInternship);
+            const dehradunData = timelineData.find(d => d.name.includes("Dehradun"));
+            const dohaData = timelineData.find(d => d.name.includes("Doha"));
+            const stockholmData = timelineData.find(d => d.name.includes("Stockholm"));
+            const ahmedabadData = timelineData.find(d => d.name.includes("Ahmedabad"));
+            const mumbaiData = timelineData.find(d => d.name.includes("Mumbai"));
+            const sanFranciscoData = timelineData.find(d => d.name.includes("San Francisco"));
+            
+            // Object to store the total months for each city
+            const cityMonths = {};
+
+            // Function to determine which city tile should be displayed for a given month index
+            function getCityForMonth(monthIndex) {
+                // Adjust the monthIndex to get the actual year and month
+                const totalMonthCountFromStart = monthIndex + startMonthIndex;
+                const currentYear = startYear + Math.floor(totalMonthCountFromStart / 12);
+                const currentMonth = totalMonthCountFromStart % 12; // 0-indexed month
+
+                // Check for internship months first, as they have the highest priority
+                const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth + 1));
+                if (internship) {
+                    return internship;
+                }
+                
+                // --- Specific timeline logic ordered by date ---
+                
+                // San Francisco (Aug 2019 - Jan 2023)
+                if ((currentYear === 2019 && currentMonth >= 7) ||
+                    (currentYear >= 2020 && currentYear <= 2022) ||
+                    (currentYear === 2023 && currentMonth === 0)) {
+                    return sanFranciscoData;
+                }
+
+                // Stockholm (Mar 2023 - Aug 2025)
+                if ((currentYear === 2023 && currentMonth >= 2) ||
+                    currentYear === 2024 ||
+                    (currentYear === 2025 && currentMonth <= 7)) {
+                    // Check for Lucknow breaks within Stockholm
+                    if (currentMonth === 6 && (currentYear === 2023 || currentYear === 2024)) {
+                        return lucknowData;
+                    }
+                    return stockholmData;
+                }
+
+                // Dehradun with breaks (2003-2009)
+                if (currentYear >= 2003 && currentYear <= 2009) {
+                    if (currentMonth === 5 || currentMonth === 6) { // June, July
+                        return lucknowData;
+                    }
+                    if (currentMonth === 10 || currentMonth === 11) { // November, December
+                        return abuDhabiData;
+                    }
+                    return dehradunData;
+                }
+                
+                // Abu Dhabi with breaks (1997-2001)
+                if (currentYear >= 1997 && currentYear <= 2001) {
+                    if (currentMonth === 6) { // July
+                        return lucknowData;
+                    }
+                    return abuDhabiData;
+                }
+
+                // Doha with breaks (1992-1996)
+                if (currentYear >= 1992 && currentYear <= 1996) {
+                    if (currentMonth === 6) { // July
+                        return lucknowData;
+                    }
+                    return dohaData;
+                }
+
+                // Ahmedabad with breaks (2010-2014)
+                if (currentYear >= 2010 && currentYear <= 2013) {
+                    if (currentMonth === 6) { // July
+                        return lucknowData;
+                    }
+                    return ahmedabadData;
+                }
+                
+                // Special case for 2014 (Ahmedabad/Mumbai split) and 2015 (Mumbai)
+                if (currentYear === 2014) {
+                    if (currentMonth >= 9) { // Oct-Dec
+                        return mumbaiData;
+                    }
+                    if (currentMonth === 6) { // July
+                        return lucknowData;
+                    }
+                    return ahmedabadData;
+                }
+                // Handle 2015 separately
+                if (currentYear === 2015 && currentMonth <= 6) { // Jan-July
+                    return mumbaiData;
+                }
+
+                // The default/catch-all for other cities
+                const city = timelineData.find(d => !d.isInternship && currentYear >= d.startYear && currentYear <= d.endYear);
+                return city || { name: "Unknown", color: "#ccc" };
+            }
+            
+            // Loop through all months and build the timeline grid
+            for (let i = 0; i < totalMonths; i++) {
+                const monthDiv = document.createElement('div');
+                const city = getCityForMonth(i);
+                
+                monthDiv.className = `month-cell`;
+                monthDiv.style.backgroundColor = city.color;
+
+                // Add the tooltip for hover functionality
+                monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
+
+                gridContainer.appendChild(monthDiv);
+                
+                // Count months for the scorecard
+                if (city.name !== "Unknown") {
+                    cityMonths[city.name] = (cityMonths[city.name] || 0) + 1;
+                }
+            }
+
+            // Function to render the scorecard based on sort type
+            function renderScorecard() {
+                scorecardGrid.innerHTML = '';
+                
+                let cityYearTotals = Object.entries(cityMonths).map(([name, months]) => ({
+                    name,
+                    months: months
+                }));
+
+                if (!isSortedByTime) { // Chronological
+                    const firstAppearanceYear = {};
+                    timelineData.forEach(item => {
+                        const cityName = item.name.split(',')[0];
+                        if (!firstAppearanceYear[cityName] && (item.startYear || item.internshipYear)) {
+                            firstAppearanceYear[cityName] = item.startYear || item.internshipYear;
+                        }
+                    });
+
+                    cityYearTotals.sort((a, b) => {
+                        const nameA = a.name.split(',')[0];
+                        const nameB = b.name.split(',')[0];
+                        const yearA = firstAppearanceYear[nameA];
+                        const yearB = firstAppearanceYear[nameB];
+                        return yearA - yearB;
+                    });
+                } else { // By time spent
+                    cityYearTotals.sort((a, b) => b.months - a.months);
+                }
+
+                cityYearTotals.forEach(item => {
+                    const scorecardItem = document.createElement('div');
+                    scorecardItem.className = 'scorecard-item';
+                    const cityName = item.name.split(',')[0];
+                    const cityColor = timelineData.find(d => d.name.split(',')[0] === cityName).color;
+                    
+                    let displayTime;
+                    if (item.months < 12) {
+                        displayTime = `${item.months} months`;
+                    } else {
+                        const years = item.months / 12;
+                        displayTime = `${years.toFixed(2)} years`;
+                    }
+
+                    scorecardItem.innerHTML = `<span style="color: ${cityColor};">${cityName}</span>: ${displayTime}`;
+                    scorecardGrid.appendChild(scorecardItem);
+                });
+            }
+
+            // Event listener for the sort button
+            sortButton.addEventListener('click', () => {
+                isSortedByTime = !isSortedByTime; // Toggle the state
+                if (isSortedByTime) {
+                    sortButton.textContent = "Sort Chronologically";
+                } else {
+                    sortButton.textContent = "Sort by Time Lived";
+                }
+                renderScorecard();
+            });
+
+            // Initial render of the scorecard (chronological by default)
+            renderScorecard();
+        };
+    </script>
+</body>
+</html>
