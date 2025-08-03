@@ -29,8 +29,9 @@
             position: relative;
             cursor: default;
         }
-        /* Tooltip styling for hover effect */
-        .month-cell .tooltip-text {
+        /* Tooltip styling for hover effect on month cells */
+        .month-cell .tooltip-text,
+        .country-segment .tooltip-text {
             visibility: hidden;
             background-color: #000;
             color: #fff;
@@ -46,9 +47,17 @@
             transition: opacity 0.3s;
             border: 1px solid #fff;
         }
-        .month-cell:hover .tooltip-text {
+        .month-cell:hover .tooltip-text,
+        .country-segment:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
+        }
+        /* Make cells larger for mobile for better touch experience */
+        @media (max-width: 768px) {
+            .month-cell {
+                width: 28.4625px; /* 15% larger */
+                height: 28.4625px; /* 15% larger */
+            }
         }
 
         /* Scorecard styling */
@@ -61,8 +70,8 @@
             align-items: center;
             margin-bottom: 10px;
         }
-        #scorecard-header h2 {
-            font-size: 16px;
+        .scorecard-title {
+            font-size: 14px;
             font-weight: normal;
             text-decoration: underline;
             margin: 0;
@@ -97,6 +106,24 @@
         #sort-button:hover {
             background-color: #d0d0d0;
         }
+
+        /* Country Bar Styling */
+        #country-bar-container {
+            margin-top: 30px;
+        }
+        #country-bar {
+            display: flex;
+            width: 100%;
+            height: 24.75px; /* Same height as month cells */
+            border: 1px solid #000;
+            gap: 1px;
+            padding: 1px;
+        }
+        .country-segment {
+            height: 100%;
+            position: relative;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -104,10 +131,13 @@
         <div id="timeline-grid"></div>
         <div id="scorecard-container">
             <div id="scorecard-header">
-                <h2>Cumulative time lived</h2>
+                <span class="scorecard-title">Cumulative time</span>
                 <button id="sort-button">Sort by Time Lived</button>
             </div>
             <div id="scorecard-grid"></div>
+        </div>
+        <div id="country-bar-container">
+            <div id="country-bar"></div>
         </div>
     </div>
 
@@ -115,17 +145,18 @@
         window.onload = function() {
             // Data array to hold city information and colors
             const timelineData = [
-                { name: "Doha, Qatar", startYear: 1992, startMonth: 5, endYear: 1996, color: "#008080" },
-                { name: "Abu Dhabi, UAE", startYear: 1997, endYear: 2001, color: "#00CED1" },
-                { name: "Lucknow, India", startYear: 2002, endYear: 2002, color: "#0000FF" },
-                { name: "Dehradun, India", startYear: 2003, endYear: 2009, color: "#4B0082" },
-                { name: "Ahmedabad, India", startYear: 2010, endYear: 2014, color: "#800080" },
-                { name: "Mumbai, India", startYear: 2014, endYear: 2015, color: "#FF00FF" },
-                { name: "Bangalore, India", startYear: 2016, endYear: 2018, color: "#FF1493" },
-                { name: "San Francisco, USA", startYear: 2019, endYear: 2023, color: "#8B0000" },
-                { name: "Stockholm, Sweden", startYear: 2023, endYear: 2025, color: "#FF0000" },
-                { name: "Goa, India (Internship)", color: "#FFA500", isInternship: true, internshipYear: 2012, internshipMonths: [5, 6, 7] },
-                { name: "Dubai, UAE (Internship)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [8, 9, 10] } // Internship months are now Aug, Sep, Oct (8, 9, 10)
+                // Combined Qatar and UAE into a single 'Gulf' country category
+                { name: "Doha, Qatar", country: "Gulf (Qatar and UAE)", startYear: 1992, startMonth: 5, endYear: 1996, color: "#008080" },
+                { name: "Abu Dhabi, UAE", country: "Gulf (Qatar and UAE)", startYear: 1997, endYear: 2001, color: "#00CED1" },
+                { name: "Lucknow, India", country: "India", startYear: 2002, endYear: 2002, color: "#0000FF" },
+                { name: "Dehradun, India", country: "India", startYear: 2003, endYear: 2009, color: "#4B0082" },
+                { name: "Ahmedabad, India", country: "India", startYear: 2010, endYear: 2014, color: "#800080" },
+                { name: "Mumbai, India", country: "India", startYear: 2014, endYear: 2015, color: "#FF00FF" },
+                { name: "Bangalore, India", country: "India", startYear: 2016, endYear: 2018, color: "#FF1493" },
+                { name: "San Francisco, USA", country: "USA", startYear: 2019, endYear: 2023, color: "#8B0000" },
+                { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, endYear: 2025, color: "#FF0000" },
+                { name: "Goa, India (Internship)", country: "India", color: "#FFA500", isInternship: true, internshipYear: 2012, internshipMonths: [5, 6, 7] },
+                { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [8, 9, 10] }
             ];
 
             // Set the new, correct start and end dates
@@ -139,21 +170,33 @@
             const gridContainer = document.getElementById('timeline-grid');
             const scorecardGrid = document.getElementById('scorecard-grid');
             const sortButton = document.getElementById('sort-button');
+            const countryBar = document.getElementById('country-bar');
             
             let isSortedByTime = false; // Initial state is chronological
 
             // Get specific city data objects for easy access
             const lucknowData = timelineData.find(d => d.name.includes("Lucknow"));
             const abuDhabiData = timelineData.find(d => d.name.includes("Abu Dhabi") && !d.isInternship);
-            const dehradunData = timelineData.find(d => d.name.includes("Dehradun"));
             const dohaData = timelineData.find(d => d.name.includes("Doha"));
+            const dehradunData = timelineData.find(d => d.name.includes("Dehradun"));
             const stockholmData = timelineData.find(d => d.name.includes("Stockholm"));
             const ahmedabadData = timelineData.find(d => d.name.includes("Ahmedabad"));
             const mumbaiData = timelineData.find(d => d.name.includes("Mumbai"));
             const sanFranciscoData = timelineData.find(d => d.name.includes("San Francisco"));
             
-            // Object to store the total months for each city
+            // Object to store the total months for each city and country
             const cityMonths = {};
+            const countryMonths = {};
+            
+            // Map countries to a representative color
+            const countryColors = {
+                "Gulf (Qatar and UAE)": "linear-gradient(to right, #008080, #00CED1)",
+                // Updated India gradient with more colors
+                "India": "linear-gradient(to right, #4B0082, #800080, #0000FF, #FF00FF, #FF1493, #FFA500)",
+                "USA": "#8B0000",
+                "Sweden": "#FF0000"
+            };
+
 
             // Function to determine which city tile should be displayed for a given month index
             function getCityForMonth(monthIndex) {
@@ -260,6 +303,10 @@
                 if (city.name !== "Unknown") {
                     cityMonths[city.name] = (cityMonths[city.name] || 0) + 1;
                 }
+                // Count months for the country bar
+                if (city.country) {
+                     countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
+                }
             }
 
             // Function to render the scorecard based on sort type
@@ -309,6 +356,43 @@
                     scorecardGrid.appendChild(scorecardItem);
                 });
             }
+            
+            // Function to render the country bar
+            function renderCountryBar() {
+                countryBar.innerHTML = '';
+                const countries = Object.keys(countryMonths);
+
+                countries.forEach(country => {
+                    const segmentDiv = document.createElement('div');
+                    const months = countryMonths[country];
+                    const percentage = (months / totalMonths) * 100;
+
+                    segmentDiv.className = 'country-segment';
+                    segmentDiv.style.width = `${percentage}%`;
+                    
+                    // Apply gradient or solid color based on country
+                    if (country === "Gulf (Qatar and UAE)") {
+                        segmentDiv.style.background = countryColors[country];
+                    } else if (country === "India") {
+                        segmentDiv.style.background = countryColors[country];
+                    } else {
+                        segmentDiv.style.backgroundColor = countryColors[country];
+                    }
+
+                    // Add a tooltip for the country bar segments
+                    let displayTime;
+                    if (months < 12) {
+                        displayTime = `${months} months`;
+                    } else {
+                        const years = months / 12;
+                        displayTime = `${years.toFixed(2)} years`;
+                    }
+                    segmentDiv.innerHTML = `<span class="tooltip-text">${country}: ${displayTime}</span>`;
+                    
+                    countryBar.appendChild(segmentDiv);
+                });
+            }
+
 
             // Event listener for the sort button
             sortButton.addEventListener('click', () => {
@@ -323,6 +407,7 @@
 
             // Initial render of the scorecard (chronological by default)
             renderScorecard();
+            renderCountryBar();
         };
     </script>
 </body>
