@@ -79,16 +79,24 @@
         }
         #scorecard-grid {
             display: grid;
+            /* Default to 6 columns for desktop */
             grid-template-columns: repeat(6, 1fr);
             font-size: 12px; /* All fonts set to 12px */
             border: 1px solid #ccc;
         }
+
+        /* Media query for mobile to change to a single column */
+        @media (max-width: 768px) {
+            #scorecard-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+
         .scorecard-item {
             padding: 5px;
             border: 1px solid #ccc;
             border-top: none;
             border-left: none;
-            white-space: nowrap;
             text-align: left; /* Left-aligned text */
         }
         .scorecard-item:nth-child(6n+1) {
