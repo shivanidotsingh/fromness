@@ -17,12 +17,23 @@ window.onload = function() {
         { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [7, 8, 9] } // July, Aug, Sep
     ];
 
-    // The timeline begins in June 1992 and ends in August 2025.
+    // The timeline begins in June 1992.
     const startYear = 1992;
     const startMonth = 6;
-    const endYear = 2025;
-    const endMonth = 8;
     
+    // Set the end date dynamically, with a cap at March 2026.
+    const today = new Date();
+    const capYear = 2026;
+    const capMonth = 3; // March
+    
+    let endYear = today.getFullYear();
+    let endMonth = today.getMonth() + 1; // getMonth() is 0-indexed
+
+    if (endYear > capYear || (endYear === capYear && endMonth > capMonth)) {
+        endYear = capYear;
+        endMonth = capMonth;
+    }
+
     const gridContainer = document.getElementById('timeline-grid');
     const scorecardGrid = document.getElementById('scorecard-grid');
     const sortButton = document.getElementById('sort-button');
@@ -45,89 +56,110 @@ window.onload = function() {
     const stockholmData = findCity("Stockholm, Sweden");
     const lucknowVacationData = findCity("Lucknow, India (Vacation)");
     const abuDhabiVacationData = findCity("Abu Dhabi, UAE (Vacation)");
+    const goaInternshipData = findCity("Goa, India (Internship)");
+    const dubaiInternshipData = findCity("Dubai, UAE (Internship)");
     
-    // --- New Timeline Generation Logic ---
+    // --- Timeline Generation Logic ---
     const chronologicalTimelineArray = [];
     const finalCityMonths = {};
     const cityColors = {};
     const countryMonths = {};
-    
+    const cityFirstYear = {};
+
     let currentYear = startYear;
     let currentMonth = startMonth;
 
     const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
     
-    // The index of the month when the Dehradun period starts.
-    const dehradunStartIndex = (2003 - startYear) * 12 + (4 - startMonth);
-
     for (let i = 0; i < totalMonths; i++) {
         let city = null;
 
         // Force the very first tile to be Lucknow
         if (i === 0) {
             city = lucknowData;
+        } 
+        // Handle internships first as they have the highest priority
+        else if (currentYear === goaInternshipData.internshipYear && goaInternshipData.internshipMonths.includes(currentMonth)) {
+            city = goaInternshipData;
+        } else if (currentYear === dubaiInternshipData.internshipYear && dubaiInternshipData.internshipMonths.includes(currentMonth)) {
+            city = dubaiInternshipData;
         }
-        // Check for internships first, as they have the highest priority
-        else if (timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth))) {
-            const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth));
-            city = internship;
-        } else {
-            // Determine the main city or vacation based on the current year and month
-            if (currentYear >= 1992 && (currentYear < 1997 || (currentYear === 1996 && currentMonth <= 12))) {
-                // Doha period, with a July break to Lucknow
-                city = (currentMonth === 7 && currentYear < 1997) ? lucknowVacationData : dohaData;
-            } else if (currentYear >= 1997 && (currentYear < 2002 || (currentYear === 2002 && currentMonth <= 3))) {
-                // Abu Dhabi period, with a July break to Lucknow
-                city = (currentMonth === 7 && currentYear < 2002) ? lucknowVacationData : abuDhabiData;
-            } else if (currentYear >= 2002 && (currentYear < 2003 || (currentYear === 2003 && currentMonth <= 3))) {
-                city = lucknowData;
-            } else if (currentYear >= 2003 && (currentYear < 2010 || (currentYear === 2010 && currentMonth <= 3))) {
-                // Corrected Dehradun logic: a repeating cycle of 4 Dehradun, 1 Lucknow, 1 Abu Dhabi
-                const monthIndexInDehradun = i - dehradunStartIndex;
-                const cycleIndex = monthIndexInDehradun % 6;
-                if (cycleIndex <= 3) {
-                    city = dehradunData;
-                } else if (cycleIndex === 4) {
-                    city = lucknowVacationData;
-                } else { // cycleIndex === 5
-                    city = abuDhabiVacationData;
-                }
-            } else if (currentYear === 2010) {
-                // The gap between Dehradun and Ahmedabad
-                if (currentMonth === 4) city = lucknowVacationData;
-                else if (currentMonth === 5) city = abuDhabiVacationData;
-                else if (currentMonth >= 6) city = ahmedabadData;
-                else city = dehradunData;
-            } else if (currentYear >= 2010 && (currentYear < 2014 || (currentYear === 2014 && currentMonth <= 6))) {
-                // Ahmedabad period, with a July break to Lucknow
-                city = (currentYear < 2014 && currentMonth === 7) ? lucknowVacationData : ahmedabadData;
-            } else if (currentYear >= 2014 && (currentYear < 2015 || (currentYear === 2015 && currentMonth <= 6))) {
-                city = mumbaiData;
-            } else if (currentYear >= 2015 && (currentYear < 2019 || (currentYear === 2019 && currentMonth <= 7))) {
-                city = bangaloreData;
-            } else if (currentYear >= 2019 && (currentYear < 2023 || (currentYear === 2023 && currentMonth <= 1))) {
-                city = sanFranciscoData;
-            } else if (currentYear >= 2023 && (currentYear < 2025 || (currentYear === 2025 && currentMonth <= 8))) {
-                // Stockholm period, with a July break to Lucknow
-                city = (currentYear < 2025 && currentMonth === 7) ? lucknowVacationData : stockholmData;
+        // Handle special vacation breaks
+        else if (
+            // Lucknow vacation in Doha period (July)
+            (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth)) && currentMonth === 7) ||
+            // Lucknow vacation in Abu Dhabi period (July)
+            (currentYear >= abuDhabiData.startYear && (currentYear < abuDhabiData.endYear || (currentYear === abuDhabiData.endYear && currentMonth <= abuDhabiData.endMonth)) && currentMonth === 7) ||
+            // Lucknow vacation in Ahmedabad period (July)
+            (currentYear >= ahmedabadData.startYear && (currentYear < ahmedabadData.endYear || (currentYear === ahmedabadData.endYear && currentMonth <= ahmedabadData.endMonth)) && currentMonth === 7) ||
+            // Lucknow vacation in Stockholm period (July 2024, after 11 months)
+            (currentYear === 2024 && currentMonth === 7)
+        ) {
+            city = lucknowVacationData;
+        } else if (
+            // Lucknow vacation during the gap between Dehradun and Ahmedabad (April 2010)
+            (currentYear === 2010 && currentMonth === 4) ||
+            // Abu Dhabi vacation during the gap between Dehradun and Ahmedabad (May 2010)
+            (currentYear === 2010 && currentMonth === 5)
+        ) {
+            city = currentMonth === 4 ? lucknowVacationData : abuDhabiVacationData;
+        } else if (
+            // Dehradun cycle breaks (Lucknow and Abu Dhabi every 6 months)
+            (currentYear >= dehradunData.startYear && (currentYear < dehradunData.endYear || (currentYear === dehradunData.endYear && currentMonth <= dehradunData.endMonth)))
+        ) {
+            const dehradunMonthsPassed = (currentYear - dehradunData.startYear) * 12 + (currentMonth - dehradunData.startMonth);
+            if (dehradunMonthsPassed > 0) { // Cycle starts after the first month
+                 const cycleIndex = dehradunMonthsPassed % 6;
+                 if (cycleIndex === 4) { // The 5th month of the cycle (index 4)
+                     city = lucknowVacationData;
+                 } else if (cycleIndex === 5) { // The 6th month of the cycle (index 5)
+                     city = abuDhabiVacationData;
+                 } else {
+                     city = dehradunData;
+                 }
+            } else {
+                 city = dehradunData;
             }
         }
         
+        // Handle main city periods (lowest priority)
+        if (!city) {
+            if (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth))) {
+                city = dohaData;
+            } else if (currentYear >= abuDhabiData.startYear && (currentYear < abuDhabiData.endYear || (currentYear === abuDhabiData.endYear && currentMonth <= abuDhabiData.endMonth))) {
+                city = abuDhabiData;
+            } else if (currentYear >= lucknowData.startYear && (currentYear < lucknowData.endYear || (currentYear === lucknowData.endYear && currentMonth <= lucknowData.endMonth))) {
+                city = lucknowData;
+            } else if (currentYear >= ahmedabadData.startYear && (currentYear < ahmedabadData.endYear || (currentYear === ahmedabadData.endYear && currentMonth <= ahmedabadData.endMonth))) {
+                city = ahmedabadData;
+            } else if (currentYear >= mumbaiData.startYear && (currentYear < mumbaiData.endYear || (currentYear === mumbaiData.endYear && currentMonth <= mumbaiData.endMonth))) {
+                city = mumbaiData;
+            } else if (currentYear >= bangaloreData.startYear && (currentYear < bangaloreData.endYear || (currentYear === bangaloreData.endYear && currentMonth <= bangaloreData.endMonth))) {
+                city = bangaloreData;
+            } else if (currentYear >= sanFranciscoData.startYear && (currentYear < sanFranciscoData.endYear || (currentYear === sanFranciscoData.endYear && currentMonth <= sanFranciscoData.endMonth))) {
+                city = sanFranciscoData;
+            } else if (currentYear >= stockholmData.startYear && (currentYear < stockholmData.endYear || (currentYear === stockholmData.endYear && currentMonth <= stockholmData.endMonth))) {
+                city = stockholmData;
+            }
+        }
+
         // Push the determined city to the timeline array
         chronologicalTimelineArray.push(city);
         
-        // Count months for scorecard and country bar. Now we group by the base city name.
-        const displayName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '').split(',')[0];
+        // Count months for scorecard and country bar
+        const baseCityName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
         
-        if (!finalCityMonths[displayName]) {
-            finalCityMonths[displayName] = 0;
-            // Store the color associated with the primary city
-            cityColors[displayName] = timelineData.find(d => d.name.startsWith(displayName) && !d.isVacation && !d.isInternship)?.color || city.color;
-        }
-        finalCityMonths[displayName]++;
-
+        finalCityMonths[baseCityName] = (finalCityMonths[baseCityName] || 0) + 1;
+        cityColors[baseCityName] = timelineData.find(d => d.name.startsWith(baseCityName))?.color || city.color;
+        
         if (city.country) {
              countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
+        }
+
+        // Keep track of the first appearance year for chronological sorting
+        if (!cityFirstYear[baseCityName]) {
+            const originalData = timelineData.find(d => d.name.startsWith(baseCityName));
+            cityFirstYear[baseCityName] = originalData?.startYear || originalData?.internshipYear || currentYear;
         }
 
         // Increment month and year
@@ -147,9 +179,8 @@ window.onload = function() {
         
         const sortedTimeline = [];
         durationSortedCities.forEach(city => {
+            const originalCity = timelineData.find(d => d.name.startsWith(city.name));
             for (let i = 0; i < city.months; i++) {
-                // Find the original city data object to get the color
-                const originalCity = timelineData.find(d => d.name.startsWith(city.name));
                 sortedTimeline.push({ name: city.name, color: originalCity.color });
             }
         });
@@ -173,10 +204,7 @@ window.onload = function() {
             // Identify the 217th tile (index 216) and make it clickable
             if (index === 216) {
                 monthDiv.style.cursor = 'pointer';
-                
-                // Add a click listener to the tile
                 monthDiv.addEventListener('click', () => {
-                    // Change the class to apply the circular style and add the number
                     monthDiv.classList.add('circle-cell');
                     monthDiv.innerHTML = `<span class="age-text">18</span>`;
                     monthDiv.style.cursor = 'default';
@@ -187,12 +215,6 @@ window.onload = function() {
         });
     }
     
-    // Function to get the first year for sorting chronologically
-    function getFirstYear(name) {
-        const item = timelineData.find(d => d.name.startsWith(name));
-        return item ? (item.startYear || item.internshipYear) : Infinity;
-    }
-
     // Function to render the scorecard based on sort type
     function renderScorecard() {
         scorecardGrid.innerHTML = '';
@@ -204,11 +226,7 @@ window.onload = function() {
         }));
 
         if (!isSortedByTime) { // Chronological
-            cityYearTotals.sort((a, b) => {
-                const yearA = getFirstYear(a.name);
-                const yearB = getFirstYear(b.name);
-                return yearA - yearB;
-            });
+            cityYearTotals.sort((a, b) => cityFirstYear[a.name] - cityFirstYear[b.name]);
         } else { // By time spent
             cityYearTotals.sort((a, b) => b.months - a.months);
         }
@@ -218,17 +236,15 @@ window.onload = function() {
             scorecardItem.className = 'scorecard-item';
             
             let displayTime;
-            // The check is now based on whether the name includes the internship or vacation suffix.
-            if (item.name.includes("(Internship)") || item.name.includes("(Vacation)")) {
-                displayTime = `${item.months} months`;
+            // Correctly display months for stays less than a year
+            if (item.months < 12) {
+                displayTime = `${item.months} month${item.months > 1 ? 's' : ''}`;
             } else {
                 const years = item.months / 12;
                 displayTime = `${years.toFixed(2)} years`;
             }
             
-            // To get a cleaner name for display, we remove the suffixes.
-            const displayName = item.name.replace(' (Vacation)', '').replace(' (Internship)', '').split(',')[0];
-            scorecardItem.innerHTML = `<span style="color: ${item.color};">${displayName}</span>: ${displayTime}`;
+            scorecardItem.innerHTML = `<span style="color: ${item.color};">${item.name}</span>: ${displayTime}`;
             scorecardGrid.appendChild(scorecardItem);
         });
     }
@@ -239,11 +255,12 @@ window.onload = function() {
         const countries = Object.keys(countryMonths);
         
         const countryBarColors = {
-            "Gulf (Qatar and UAE)": "linear-gradient(to right, #008080, #00CED1)",
-            "India": "linear-gradient(to right, #4B0082, #800080, #0000FF, #FF00FF, #FF1493, #FFA500)",
+            "Gulf (Qatar and UAE)": "linear-gradient(to right, #008080, #00CED1, #2E8B57)",
+            "India": "linear-gradient(to right, #0000FF, #4B0082, #800080, #FF00FF, #FF1493, #FFA500)",
             "USA": "#8B0000",
             "Sweden": "#FF0000"
         };
+        const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 
         countries.forEach(country => {
             const segmentDiv = document.createElement('div');
@@ -252,15 +269,8 @@ window.onload = function() {
 
             segmentDiv.className = 'country-segment';
             segmentDiv.style.width = `${percentage}%`;
+            segmentDiv.style.background = countryBarColors[country] || "#ccc";
             
-            if (country === "Gulf (Qatar and UAE)") {
-                segmentDiv.style.background = countryBarColors[country];
-            } else if (country === "India") {
-                segmentDiv.style.background = countryBarColors[country];
-            } else {
-                segmentDiv.style.backgroundColor = countryBarColors[country];
-            }
-
             let displayTime;
             const years = months / 12;
             displayTime = `${years.toFixed(2)} years`;
