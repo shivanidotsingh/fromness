@@ -132,3 +132,17 @@ body {
     position: relative;
     cursor: default;
 }
+
+/* gravity test */
+#timeline-grid.gravity-mode {
+  position: relative !important;
+  height: 600px; /* or a value large enough for tiles to stack */
+  min-height: 400px;
+}
+
+#timeline-grid.gravity-mode .month-cell {
+  position: absolute !important;
+  transition: top 1s cubic-bezier(.18,.89,.32,1.28), left 1s cubic-bezier(.18,.89,.32,1.28);
+  z-index: 2;
+}
+
