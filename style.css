@@ -51,25 +51,6 @@ body {
     opacity: 1;
 }
 
-/* New styling for the disassembly button tile */
-.disassemble-button {
-    background-color: #333 !important; /* Overrides the normal color */
-    color: white;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1;
-}
-
-/* New styling for the falling tiles */
-.falling-tile {
-    position: absolute;
-    opacity: 1;
-    transition: transform 1s ease-in, opacity 1s linear;
-}
-
 /* Media query for mobile to change to a 10-column grid */
 @media (max-width: 768px) {
     #timeline-grid {
