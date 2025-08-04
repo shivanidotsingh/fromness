@@ -56,6 +56,9 @@ window.onload = function() {
     let currentMonth = startMonth;
 
     const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+    
+    // The index of the month when the Dehradun period starts.
+    const dehradunStartIndex = (2003 - startYear) * 12 + (4 - startMonth);
 
     for (let i = 0; i < totalMonths; i++) {
         let city = null;
@@ -75,13 +78,15 @@ window.onload = function() {
             } else if (currentYear >= 2002 && (currentYear < 2003 || (currentYear === 2003 && currentMonth <= 3))) {
                 city = lucknowData;
             } else if (currentYear >= 2003 && (currentYear < 2010 || (currentYear === 2010 && currentMonth <= 3))) {
-                // Dehradun period, with various breaks
-                if (currentYear < 2010) {
-                    if (currentMonth === 6 || currentMonth === 7) city = lucknowVacationData;
-                    else if (currentMonth === 11 || currentMonth === 12) city = abuDhabiVacationData;
-                    else city = dehradunData;
-                } else {
+                // Corrected Dehradun logic: a repeating cycle of 4 Dehradun, 1 Lucknow, 1 Abu Dhabi
+                const monthIndexInDehradun = i - dehradunStartIndex;
+                const cycleIndex = monthIndexInDehradun % 6;
+                if (cycleIndex <= 3) {
                     city = dehradunData;
+                } else if (cycleIndex === 4) {
+                    city = lucknowVacationData;
+                } else { // cycleIndex === 5
+                    city = abuDhabiVacationData;
                 }
             } else if (currentYear === 2010) {
                 // The gap between Dehradun and Ahmedabad
@@ -107,13 +112,13 @@ window.onload = function() {
         // Push the determined city to the timeline array
         chronologicalTimelineArray.push(city);
         
-        // Count months for scorecard and country bar
-        const displayName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
-        if (!finalCityMonths[displayName]) {
-            finalCityMonths[displayName] = 0;
-            cityColors[displayName] = city.color;
+        // Count months for scorecard and country bar. We now use the full name as the key.
+        const cityNameWithSuffix = city.name;
+        if (!finalCityMonths[cityNameWithSuffix]) {
+            finalCityMonths[cityNameWithSuffix] = 0;
+            cityColors[cityNameWithSuffix] = city.color;
         }
-        finalCityMonths[displayName]++;
+        finalCityMonths[cityNameWithSuffix]++;
 
         if (city.country) {
              countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
@@ -138,7 +143,7 @@ window.onload = function() {
         durationSortedCities.forEach(city => {
             for (let i = 0; i < city.months; i++) {
                 // Find the original city data object to get the color
-                const originalCity = timelineData.find(d => d.name.replace(' (Vacation)', '').replace(' (Internship)', '') === city.name);
+                const originalCity = timelineData.find(d => d.name === city.name);
                 sortedTimeline.push({ name: city.name, color: originalCity.color });
             }
         });
@@ -155,7 +160,9 @@ window.onload = function() {
             monthDiv.className = `month-cell`;
             monthDiv.style.backgroundColor = city.color;
             
-            monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
+            // Remove the vacation/internship suffixes from the tooltip
+            const tooltipName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
+            monthDiv.innerHTML = `<span class="tooltip-text">${tooltipName}</span>`;
 
             // Identify the 217th tile (index 216) and make it clickable
             if (index === 216) {
@@ -176,7 +183,7 @@ window.onload = function() {
     
     // Function to get the first year for sorting chronologically
     function getFirstYear(name) {
-        const item = timelineData.find(d => d.name.replace(' (Vacation)', '').replace(' (Internship)', '') === name);
+        const item = timelineData.find(d => d.name === name);
         return item ? (item.startYear || item.internshipYear) : Infinity;
     }
 
@@ -205,17 +212,17 @@ window.onload = function() {
             scorecardItem.className = 'scorecard-item';
             
             let displayTime;
-            // Check if the item is an internship to display in months
-            const originalItem = timelineData.find(d => d.name.includes(item.name));
-            if (originalItem && (originalItem.isInternship || originalItem.isVacation)) {
+            // The check is now based on whether the name includes the internship or vacation suffix.
+            if (item.name.includes("(Internship)") || item.name.includes("(Vacation)")) {
                 displayTime = `${item.months} months`;
             } else {
                 const years = item.months / 12;
                 displayTime = `${years.toFixed(2)} years`;
             }
             
-            const cityName = item.name.split(',')[0];
-            scorecardItem.innerHTML = `<span style="color: ${item.color};">${cityName}</span>: ${displayTime}`;
+            // To get a cleaner name for display, we remove the suffixes.
+            const displayName = item.name.replace(' (Vacation)', '').replace(' (Internship)', '').split(',')[0];
+            scorecardItem.innerHTML = `<span style="color: ${item.color};">${displayName}</span>: ${displayTime}`;
             scorecardGrid.appendChild(scorecardItem);
         });
     }
