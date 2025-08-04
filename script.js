@@ -265,4 +265,50 @@ window.onload = function() {
     renderTimeline(chronologicalTimelineArray);
     renderScorecard();
     renderCountryBar();
+
+    // Gravity stacking trigger
+document.getElementById("gravity-trigger").addEventListener("click", function() {
+    // 1. Add gravity mode to grid
+    gridContainer.classList.add("gravity-mode");
+
+    // 2. Calculate layout info
+    const rect = gridContainer.getBoundingClientRect();
+    // Find column count (from responsive CSS or set manually)
+    let columns = 6;
+    if (window.innerWidth < 800) columns = 10; // Use your responsive breakpoint
+
+    // 3. Get all month cells
+    const cells = Array.from(gridContainer.children);
+    const cellWidth = cells[0].offsetWidth;
+    const cellHeight = cells[0].offsetHeight;
+
+    // 4. Initialize stacks for each column
+    let stacks = Array(columns).fill(0);
+
+    cells.forEach((cell, i) => {
+        // Calculate grid position before gravity
+        let col = i % columns;
+        let row = Math.floor(i / columns);
+
+        // Place absolutely based on current position
+        cell.style.left = (col * (cellWidth + 1)) + 'px';
+        cell.style.top = (row * (cellHeight + 1)) + 'px';
+
+        // Mark transition for later
+        cell.setAttribute('data-col', col);
+    });
+
+    // 5. Gravity Test
+    setTimeout(() => {
+        // Recompute stacking (bottom up), stacking cells in columns
+        // First, reverse so bottom row animates first for visible "fall"
+        cells.reverse().forEach((cell) => {
+            const col = parseInt(cell.getAttribute('data-col'));
+            const stackHeight = stacks[col];
+            cell.style.top = (gridContainer.offsetHeight - cellHeight * (stackHeight + 1)) + 'px';
+            stacks[col]++;
+        });
+    }, 100); // Let browser paint first layout before animating
+});
+
 };
