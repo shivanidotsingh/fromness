@@ -85,7 +85,8 @@ window.onload = function() {
             if (month === 6 || month === 12) return abuDhabiVacationData;
             if (month === 7 || month === 1) return lucknowVacationData;
         }
-        if (isWithinPeriod(ahmedabadData) && month === 7) { // July vacation during Ahmedabad
+        // New logic: Lucknow vacation in May during the Ahmedabad period
+        if (isWithinPeriod(ahmedabadData) && month === 5) {
             return lucknowVacationData;
         }
         if (isWithinPeriod(abuDhabiData) && month === 7) { // July vacation during Abu Dhabi period
@@ -174,7 +175,8 @@ window.onload = function() {
             const tooltipName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
             monthDiv.innerHTML += `<span class="tooltip-text">${tooltipName}</span>`;
 
-            if (index === 216) {
+            // The index for June 2010, the start of the new Ahmedabad period
+            if (index === 215) { 
                 monthDiv.style.cursor = 'pointer';
                 monthDiv.addEventListener('click', () => {
                     monthDiv.classList.add('circle-cell');
