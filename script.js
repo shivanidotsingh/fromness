@@ -178,32 +178,6 @@ window.onload = function() {
         return { name: "Unknown", color: "#ccc" };
     }
 
-    const tiles = document.querySelectorAll('#timeline-grid .month-cell');
-
-    // Find the first tile with the Ahmedabad purple color (#800080)
-    const ahmedabadTile = Array.from(tiles).find(tile => {
-        const bg = window.getComputedStyle(tile).backgroundColor;
-        return bg === 'rgb(128, 0, 128)';  // rgb equivalent of #800080
-    });
-
-    if (ahmedabadTile) {
-        ahmedabadTile.style.position = 'relative';  // allow inner text positioning
-
-        ahmedabadTile.addEventListener('click', function() {
-            // Prevent multiple clicks causing repeated additions
-            if (ahmedabadTile.classList.contains('circle-tile')) return;
-
-            ahmedabadTile.classList.add('circle-tile');
-            ahmedabadTile.textContent = '';  // clear existing tile content (empty tile initially)
-
-            // Create and append the small '18' inside the tile
-            const smallText = document.createElement('span');
-            smallText.textContent = '18';
-            smallText.classList.add('circle-text');
-
-            ahmedabadTile.appendChild(smallText);
-        });
-    }
     
     // Function to render the scorecard based on sort type
     function renderScorecard() {
