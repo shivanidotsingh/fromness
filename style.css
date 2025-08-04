@@ -139,6 +139,9 @@ body {
   height: 600px; /* or a value large enough for tiles to stack */
   min-height: 400px;
 }
+.secret-trigger {
+    cursor: pointer;
+}
 
 #timeline-grid.gravity-mode .month-cell {
   position: absolute !important;
