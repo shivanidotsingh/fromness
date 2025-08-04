@@ -267,50 +267,76 @@ window.onload = function() {
     renderCountryBar();
 
     // --- Gravity stacking collapse trigger ---
-    document.getElementById("gravity-trigger").addEventListener("click", function() {
-        const gridContainer = document.getElementById('timeline-grid');
-        gridContainer.classList.add("gravity-mode");
+    document.getElementById("gravity-trigger").addEventListener("click", function () {
+  const gridContainer = document.getElementById("timeline-grid");
+  const cells = Array.from(gridContainer.children);
+  if (!cells.length) return;
 
-        const cells = Array.from(gridContainer.children);
-        if (!cells.length) return;
+  gridContainer.style.position = "relative";
+  gridContainer.style.height = "600px"; // adjust to needed stack height
 
-        // Set container to relative for absolute positioning children
-        gridContainer.style.position = 'relative';
-        gridContainer.style.height = '600px'; // enough vertical stacking space, adjust if needed
+  // Calculate available horizontal slots based on tile width and container width
+  const containerWidth = gridContainer.clientWidth;
+  const tileWidth = cells[0].offsetWidth + 2; // include 2px gap approx.
 
-        const containerWidth = gridContainer.clientWidth;
+  const maxSlots = Math.floor(containerWidth / tileWidth);
+  const usedSlots = new Set();
 
-        cells.forEach((cell, i) => {
-            const rect = cell.getBoundingClientRect();
-            const containerRect = gridContainer.getBoundingClientRect();
+  // Shuffle function for randomness
+  function shuffle(array) {
+    for (let i = array.length -1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i +1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
 
-            const left = rect.left - containerRect.left;
-            const top = rect.top - containerRect.top;
+  // Available slot indices to use, shuffled for randomness
+  let slots = shuffle([...Array(maxSlots).keys()]);
 
-            cell.style.position = 'absolute';
-            cell.style.left = `${left}px`;
-            cell.style.top = `${top}px`;
-            cell.style.margin = 0;
-            cell.style.transition = 'transform 1.5s ease-in, top 1.5s ease-in, left 1.5s ease-in';
-            cell.style.zIndex = 1000 + i;
+  // Track stack heights for each slot
+  let stackHeights = Array(maxSlots).fill(0);
+  const tileHeight = cells[0].offsetHeight;
 
-            // Initial small random rotation to add natural disorientation on start
-            const initialRotation = (Math.random() * 20) - 10;
-            cell.style.transform = `rotate(${initialRotation}deg)`;
-        });
+  cells.forEach((cell, i) => {
+    const rect = cell.getBoundingClientRect();
+    const containerRect = gridContainer.getBoundingClientRect();
 
-        // Animate fall-down and scattered stacking at bottom after a short delay
-        setTimeout(() => {
-            const bottomY = gridContainer.clientHeight - 60; // 60px above container bottom to prevent cutoff
+    const currentLeft = rect.left - containerRect.left;
+    const currentTop = rect.top - containerRect.top;
 
-            cells.forEach((cell) => {
-                const randomLeft = Math.random() * (containerWidth - cell.offsetWidth);
-                const randomRotation = (Math.random() * 60) - 30; // rotate -30 to +30 degrees
+    cell.style.position = "absolute";
+    cell.style.left = `${currentLeft}px`;
+    cell.style.top = `${currentTop}px`;
+    cell.style.margin = 0;
+    cell.style.transition = "top 1.5s ease-in, left 1.5s ease-in, transform 1.5s ease-in";
+    cell.style.zIndex = 1000 + i;
+    cell.style.transform = "rotate(0deg)";
 
-                cell.style.top = `${bottomY}px`;
-                cell.style.left = `${randomLeft}px`;
-                cell.style.transform = `rotate(${randomRotation}deg)`;
-            });
-        }, 50);
-    });
+    // Assign a random free horizontal slot
+    let slotIndex = slots.pop();
+    if (slotIndex === undefined) {
+      // If no slot left, pick randomly (can happen if fewer tiles than slots)
+      slotIndex = Math.floor(Math.random() * maxSlots);
+    }
+
+    // Calculate final top based on stacking height to prevent overlap
+    const finalLeft = slotIndex * tileWidth;
+    const finalTop = gridContainer.clientHeight - tileHeight * (stackHeights[slotIndex] + 1);
+
+    // Update stack height for that slot
+    stackHeights[slotIndex]++;
+
+    // Apply random rotation between -15 and 15 degrees for natural stacking
+    const randomRotation = (Math.random() * 30) - 15;
+
+    // Animate falling and stacking
+    setTimeout(() => {
+      cell.style.left = `${finalLeft}px`;
+      cell.style.top = `${finalTop}px`;
+      cell.style.transform = `rotate(${randomRotation}deg)`;
+    }, 50);
+  });
+});
+
 };
