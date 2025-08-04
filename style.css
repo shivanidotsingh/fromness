@@ -4,10 +4,6 @@ body {
     background-color: #f0f0f0;
     color: #333;
     padding: 10px;
-    /* Added for the falling tile effect */
-    position: relative;
-    overflow: hidden;
-    height: 100vh;
 }
 .container {
     max-width: 900px;
