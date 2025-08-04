@@ -132,24 +132,3 @@ body {
     position: relative;
     cursor: default;
 }
-
-/* TESTING CLICK */
-#timeline-grid .month-cell.circle-tile {
-    border-radius: 50%;         /* make the tile a perfect circle */
-    width: 25px;                /* keep original tile size */
-    height: 25px;               /* keep original tile size */
-    display: flex;
-    align-items: center;        /* vertical center */
-    justify-content: center;    /* horizontal center */
-    background-color: inherit;  /* preserve original bg */
-    cursor: pointer;
-    user-select: none;          /* prevent text highlight */
-}
-
-#timeline-grid .month-cell.circle-tile .circle-text {
-    font-size: 10px;            /* small font for '18' */
-    color: #000;                /* black text for contrast */
-    pointer-events: none;       /* pass clicks through text */
-    user-select: none;
-}
-
