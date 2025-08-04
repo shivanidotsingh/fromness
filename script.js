@@ -63,9 +63,13 @@ window.onload = function() {
     for (let i = 0; i < totalMonths; i++) {
         let city = null;
 
+        // Force the very first tile to be Lucknow
+        if (i === 0) {
+            city = lucknowData;
+        }
         // Check for internships first, as they have the highest priority
-        const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth));
-        if (internship) {
+        else if (timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth))) {
+            const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth));
             city = internship;
         } else {
             // Determine the main city or vacation based on the current year and month
@@ -112,13 +116,15 @@ window.onload = function() {
         // Push the determined city to the timeline array
         chronologicalTimelineArray.push(city);
         
-        // Count months for scorecard and country bar. We now use the full name as the key.
-        const cityNameWithSuffix = city.name;
-        if (!finalCityMonths[cityNameWithSuffix]) {
-            finalCityMonths[cityNameWithSuffix] = 0;
-            cityColors[cityNameWithSuffix] = city.color;
+        // Count months for scorecard and country bar. Now we group by the base city name.
+        const displayName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '').split(',')[0];
+        
+        if (!finalCityMonths[displayName]) {
+            finalCityMonths[displayName] = 0;
+            // Store the color associated with the primary city
+            cityColors[displayName] = timelineData.find(d => d.name.startsWith(displayName) && !d.isVacation && !d.isInternship)?.color || city.color;
         }
-        finalCityMonths[cityNameWithSuffix]++;
+        finalCityMonths[displayName]++;
 
         if (city.country) {
              countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
@@ -143,7 +149,7 @@ window.onload = function() {
         durationSortedCities.forEach(city => {
             for (let i = 0; i < city.months; i++) {
                 // Find the original city data object to get the color
-                const originalCity = timelineData.find(d => d.name === city.name);
+                const originalCity = timelineData.find(d => d.name.startsWith(city.name));
                 sortedTimeline.push({ name: city.name, color: originalCity.color });
             }
         });
@@ -183,7 +189,7 @@ window.onload = function() {
     
     // Function to get the first year for sorting chronologically
     function getFirstYear(name) {
-        const item = timelineData.find(d => d.name === name);
+        const item = timelineData.find(d => d.name.startsWith(name));
         return item ? (item.startYear || item.internshipYear) : Infinity;
     }
 
