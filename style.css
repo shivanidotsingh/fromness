@@ -47,6 +47,19 @@ body {
     opacity: 1;
 }
 
+.circle-cell {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Hide the tooltip on the circle tile */
+    pointer-events: none;
+}
+.age-text {
+    color: white;
+    font-size: 10px; /* Adjust size as needed to make it "tiny" */
+}
+
 /* Media query for mobile to change to a 10-column grid */
 @media (max-width: 768px) {
     #timeline-grid {
