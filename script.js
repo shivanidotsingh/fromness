@@ -267,42 +267,50 @@ window.onload = function() {
     renderCountryBar();
 
     // --- Gravity stacking collapse trigger ---
-    const gravityButton = document.getElementById("gravity-trigger");
-    gravityButton.addEventListener("click", function() {
+    document.getElementById("gravity-trigger").addEventListener("click", function() {
         const gridContainer = document.getElementById('timeline-grid');
         gridContainer.classList.add("gravity-mode");
 
-        // Responsive column count (matches your grid's CSS)
-        const columns = window.innerWidth < 768 ? 10 : 6;
-
         const cells = Array.from(gridContainer.children);
-        if(cells.length === 0) return; // safeguard
+        if (!cells.length) return;
 
-        const cellWidth = cells[0].offsetWidth;
-        const cellHeight = cells[0].offsetHeight;
+        // Set container to relative for absolute positioning children
+        gridContainer.style.position = 'relative';
+        gridContainer.style.height = '600px'; // enough vertical stacking space, adjust if needed
 
-        const stacks = new Array(columns).fill(0);
+        const containerWidth = gridContainer.clientWidth;
 
         cells.forEach((cell, i) => {
-            const col = i % columns;
-            const row = Math.floor(i / columns);
+            const rect = cell.getBoundingClientRect();
+            const containerRect = gridContainer.getBoundingClientRect();
+
+            const left = rect.left - containerRect.left;
+            const top = rect.top - containerRect.top;
 
             cell.style.position = 'absolute';
-            cell.style.left = (col * (cellWidth + 1)) + 'px';
-            cell.style.top = (row * (cellHeight + 1)) + 'px';
-            cell.style.transition = 'top 1s cubic-bezier(.18,.89,.32,1.28), left 1s cubic-bezier(.18,.89,.32,1.28)';
-            cell.style.zIndex = 2;
+            cell.style.left = `${left}px`;
+            cell.style.top = `${top}px`;
+            cell.style.margin = 0;
+            cell.style.transition = 'transform 1.5s ease-in, top 1.5s ease-in, left 1.5s ease-in';
+            cell.style.zIndex = 1000 + i;
 
-            cell.setAttribute('data-col', col);
+            // Initial small random rotation to add natural disorientation on start
+            const initialRotation = (Math.random() * 20) - 10;
+            cell.style.transform = `rotate(${initialRotation}deg)`;
         });
 
+        // Animate fall-down and scattered stacking at bottom after a short delay
         setTimeout(() => {
-            cells.reverse().forEach(cell => {
-                const col = parseInt(cell.getAttribute('data-col'));
-                const stackHeight = stacks[col];
-                cell.style.top = (gridContainer.offsetHeight - cellHeight * (stackHeight + 1)) + 'px';
-                stacks[col]++;
+            const bottomY = gridContainer.clientHeight - 60; // 60px above container bottom to prevent cutoff
+
+            cells.forEach((cell) => {
+                const randomLeft = Math.random() * (containerWidth - cell.offsetWidth);
+                const randomRotation = (Math.random() * 60) - 30; // rotate -30 to +30 degrees
+
+                cell.style.top = `${bottomY}px`;
+                cell.style.left = `${randomLeft}px`;
+                cell.style.transform = `rotate(${randomRotation}deg)`;
             });
-        }, 100);
+        }, 50);
     });
 };
