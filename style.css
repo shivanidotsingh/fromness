@@ -6,7 +6,7 @@ body {
     padding: 10px;
 }
 .container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 #timeline-grid {
@@ -17,9 +17,8 @@ body {
     padding: 1px;
 }
 .month-cell {
-    width: 24.75px;
-    height: 24.75px;
-    border: 1px solid #ccc;
+    width: 25px;
+    height: 25px;
     position: relative;
     cursor: default;
 }
@@ -86,7 +85,6 @@ body {
 .scorecard-title {
     font-size: 12px; /* All fonts set to 12px */
     font-weight: normal;
-    text-decoration: underline;
     margin: 0;
 }
 #scorecard-grid {
