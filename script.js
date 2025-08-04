@@ -29,7 +29,6 @@ window.onload = function() {
     const countryBar = document.getElementById('country-bar');
     
     let isSortedByTime = false; // Initial state is chronological
-    let disassemblyInitiated = false; // Flag to prevent multiple disassembly clicks
 
     // Function to calculate the number of months between two dates, inclusive
     function getMonthCount(startYear, startMonth, endYear, endMonth) {
@@ -56,19 +55,62 @@ window.onload = function() {
     const sanFranciscoData = timelineData.find(d => d.name.includes("San Francisco"));
     const dubaiData = timelineData.find(d => d.name.includes("Dubai"));
     const goaData = timelineData.find(d => d.name.includes("Goa"));
-
-    // Define the special disassembly tile
-    const disassemblyTile = { name: "Click to Disassemble", color: "#333", isDisassembly: true };
-    const middleIndex = Math.floor(totalMonths / 2);
-
-    // Map countries to a representative color
-    const countryColors = {
-        "Gulf (Qatar and UAE)": "linear-gradient(to right, #008080, #00CED1)",
-        "India": "linear-gradient(to right, #4B0082, #800080, #0000FF, #FF00FF, #FF1493, #FFA500)",
-        "USA": "#8B0000",
-        "Sweden": "#FF0000"
-    };
     
+    const finalCityMonths = {};
+    const cityColors = {};
+    const countryMonths = {};
+    
+    // --- New Timeline Rendering Logic ---
+    const chronologicalTimelineArray = [];
+    
+    // Generate the chronological timeline once
+    for (let i = 0; i < totalMonths; i++) {
+        const city = getCityForMonth(i);
+        chronologicalTimelineArray.push(city);
+        
+        const displayName = city.name.replace(' (Internship)', '');
+        if (!finalCityMonths[displayName]) {
+            finalCityMonths[displayName] = 0;
+            cityColors[displayName] = city.color;
+        }
+        finalCityMonths[displayName]++;
+
+        if (city.country) {
+             countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
+        }
+    }
+
+    // Function to create a duration-sorted timeline array
+    function getDurationSortedTimeline() {
+        const durationSortedCities = Object.entries(finalCityMonths)
+            .map(([name, months]) => ({ name, months, color: cityColors[name] }));
+        
+        durationSortedCities.sort((a, b) => b.months - a.months);
+        
+        const sortedTimeline = [];
+        durationSortedCities.forEach(city => {
+            for (let i = 0; i < city.months; i++) {
+                sortedTimeline.push({ name: city.name, color: city.color });
+            }
+        });
+        return sortedTimeline;
+    }
+    
+    const durationTimelineArray = getDurationSortedTimeline();
+
+    // Function to render the timeline grid
+    function renderTimeline(data) {
+        gridContainer.innerHTML = '';
+        data.forEach((city, index) => {
+            const monthDiv = document.createElement('div');
+            monthDiv.className = `month-cell`;
+            monthDiv.style.backgroundColor = city.color;
+            
+            monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
+            gridContainer.appendChild(monthDiv);
+        });
+    }
+
     // Function to determine which city tile should be displayed for a given month index
     function getCityForMonth(monthIndex) {
         if (monthIndex === 0) return lucknowData;
@@ -136,107 +178,6 @@ window.onload = function() {
         return { name: "Unknown", color: "#ccc" };
     }
     
-    const finalCityMonths = {};
-    const cityColors = {};
-    const countryMonths = {};
-    
-    // --- New Timeline Rendering Logic ---
-    const chronologicalTimelineArray = [];
-    
-    // Generate the chronological timeline once
-    for (let i = 0; i < totalMonths; i++) {
-        const city = getCityForMonth(i);
-        chronologicalTimelineArray.push(city);
-        
-        const displayName = city.name.replace(' (Internship)', '');
-        if (!finalCityMonths[displayName]) {
-            finalCityMonths[displayName] = 0;
-            cityColors[displayName] = city.color;
-        }
-        finalCityMonths[displayName]++;
-
-        if (city.country) {
-             countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
-        }
-    }
-
-    // Function to create a duration-sorted timeline array
-    function getDurationSortedTimeline() {
-        const durationSortedCities = Object.entries(finalCityMonths)
-            .map(([name, months]) => ({ name, months, color: cityColors[name] }));
-        
-        durationSortedCities.sort((a, b) => b.months - a.months);
-        
-        const sortedTimeline = [];
-        durationSortedCities.forEach(city => {
-            for (let i = 0; i < city.months; i++) {
-                sortedTimeline.push({ name: city.name, color: city.color });
-            }
-        });
-        return sortedTimeline;
-    }
-    
-    const durationTimelineArray = getDurationSortedTimeline();
-
-    // Function to render the timeline grid
-    function renderTimeline(data) {
-        gridContainer.innerHTML = '';
-        data.forEach((city, index) => {
-            const monthDiv = document.createElement('div');
-            monthDiv.className = `month-cell`;
-            monthDiv.style.backgroundColor = city.color;
-            
-            // Check for the middle index and render the disassembly tile
-            if (!isSortedByTime && index === middleIndex) {
-                monthDiv.classList.add('disassemble-button');
-                monthDiv.innerHTML = '<span>Click to Disassemble</span>';
-                monthDiv.addEventListener('click', handleDisassemble);
-            } else {
-                monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
-            }
-            gridContainer.appendChild(monthDiv);
-        });
-    }
-
-    // Function to handle the disassembly animation
-    function handleDisassemble() {
-        if (disassemblyInitiated) return;
-        disassemblyInitiated = true;
-
-        const tiles = document.querySelectorAll('#timeline-grid .month-cell');
-        
-        // Disable the sort button to prevent interaction during animation
-        sortButton.disabled = true;
-        
-        // Remove the special disassembly button from the grid before the animation starts
-        const disassembleButton = document.querySelector('.disassemble-button');
-        if (disassembleButton) {
-            disassembleButton.remove();
-        }
-
-        tiles.forEach((tile, index) => {
-            tile.style.position = 'absolute';
-            const rect = tile.getBoundingClientRect();
-            tile.style.top = `${rect.top}px`;
-            tile.style.left = `${rect.left}px`;
-            tile.classList.add('falling-tile');
-
-            const randomX = (Math.random() - 0.5) * 500;
-            const randomY = window.innerHeight + (Math.random() * 500);
-            const randomRotation = (Math.random() - 0.5) * 1080;
-            const randomDelay = Math.random() * 0.5;
-
-            tile.style.transitionDelay = `${randomDelay}s`;
-            tile.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg)`;
-            tile.style.opacity = '0';
-            
-            // Clean up the tile after it has fallen
-            setTimeout(() => {
-                tile.remove();
-            }, (1 + randomDelay) * 1000);
-        });
-    }
-
     // Function to render the scorecard based on sort type
     function renderScorecard() {
         scorecardGrid.innerHTML = '';
