@@ -179,19 +179,24 @@ window.onload = function() {
     }
 
     const tiles = document.querySelectorAll('#timeline-grid .month-cell');
-    // Find first tile containing 'Ahmedabad' text
-    const ahmedabadTile = Array.from(tiles).find(tile => tile.textContent.includes('Ahmedabad'));
+
+    // Find the first tile with the Ahmedabad purple color (#800080)
+    const ahmedabadTile = Array.from(tiles).find(tile => {
+        const bg = window.getComputedStyle(tile).backgroundColor;
+        return bg === 'rgb(128, 0, 128)';  // rgb equivalent of #800080
+    });
 
     if (ahmedabadTile) {
-        ahmedabadTile.style.position = 'relative';  // for positioning the inner text span
+        ahmedabadTile.style.position = 'relative';  // allow inner text positioning
 
         ahmedabadTile.addEventListener('click', function() {
-            // Add circle class for styles
-            ahmedabadTile.classList.add('circle-tile');
-            // Clear existing text content
-            ahmedabadTile.textContent = '';
+            // Prevent multiple clicks causing repeated additions
+            if (ahmedabadTile.classList.contains('circle-tile')) return;
 
-            // Create small '18' text element inside
+            ahmedabadTile.classList.add('circle-tile');
+            ahmedabadTile.textContent = '';  // clear existing tile content (empty tile initially)
+
+            // Create and append the small '18' inside the tile
             const smallText = document.createElement('span');
             smallText.textContent = '18';
             smallText.classList.add('circle-text');
