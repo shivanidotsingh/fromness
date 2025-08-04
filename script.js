@@ -107,6 +107,20 @@ window.onload = function() {
             monthDiv.style.backgroundColor = city.color;
             
             monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
+
+            // Identify the 216th tile (index 215) and make it clickable
+            if (index === 215) {
+                monthDiv.style.cursor = 'pointer';
+                
+                // Add a click listener to the tile
+                monthDiv.addEventListener('click', () => {
+                    // Change the class to apply the circular style and add the number
+                    monthDiv.classList.add('circle-cell');
+                    monthDiv.innerHTML = `<span class="age-text">18</span>`;
+                    monthDiv.style.cursor = 'default'; // Make it non-clickable after the first click
+                });
+            }
+            
             gridContainer.appendChild(monthDiv);
         });
     }
@@ -177,7 +191,6 @@ window.onload = function() {
 
         return { name: "Unknown", color: "#ccc" };
     }
-
     
     // Function to render the scorecard based on sort type
     function renderScorecard() {
@@ -266,5 +279,4 @@ window.onload = function() {
     renderTimeline(chronologicalTimelineArray);
     renderScorecard();
     renderCountryBar();
-
 };
