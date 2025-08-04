@@ -310,20 +310,29 @@ document.getElementById("gravity-trigger").addEventListener("click", function() 
     }, 100); // Let browser paint first layout before animating
 });
 
-    // Select all month cells after rendering
+// Get all month cells
 const monthCells = document.querySelectorAll('#timeline-grid .month-cell');
 
-// Pick a random cell index to be the secret trigger
-const secretIndex = Math.floor(Math.random() * monthCells.length);
-const secretCell = monthCells[secretIndex];
+// Calculate the index of the 5th cell in the 5th row (0-indexed)
+const row = 4; // 5th row (0-based)
+const col = 4; // 5th cell (0-based)
+const columns = 6; // Your grid has 6 columns on desktop; adjust if needed for mobile
 
-// Attach a click event listener to the secret cell that triggers your gravity function
-secretCell.addEventListener('click', () => {
-    console.log("Secret cell clicked!");
+const triggerIndex = row * columns + col;
 
-    // Your gravity stacking trigger code here, or call the function if defined
-    document.getElementById("gravity-trigger").click();
-});
-    
+if (monthCells[triggerIndex]) {
+    const secretCell = monthCells[triggerIndex];
+
+    // Add class for pointer cursor on hover
+    secretCell.classList.add('secret-trigger');
+
+    // Attach click event to trigger gravity stacking
+    secretCell.addEventListener('click', () => {
+        console.log("Secret cell clicked!");
+
+        // Trigger gravity stacking
+        document.getElementById("gravity-trigger").click();
+    });
+}
 
 };
