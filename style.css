@@ -1,0 +1,157 @@
+body {
+    font-family: sans-serif;
+    font-size: 12px; /* All fonts set to 12px */
+    background-color: #f0f0f0;
+    color: #333;
+    padding: 10px;
+    /* Added for the falling tile effect */
+    position: relative;
+    overflow: hidden;
+    height: 100vh;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+#timeline-grid {
+    display: flex; /* Default is a flexible layout for desktop */
+    flex-wrap: wrap;
+    gap: 1px;
+    border: none;
+    padding: 1px;
+}
+.month-cell {
+    width: 24.75px;
+    height: 24.75px;
+    border: 1px solid #ccc;
+    position: relative;
+    cursor: default;
+}
+/* Tooltip styling for hover effect on month cells */
+.month-cell .tooltip-text,
+.country-segment .tooltip-text {
+    visibility: hidden;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    padding: 4px;
+    position: absolute;
+    z-index: 10;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid #fff;
+}
+.month-cell:hover .tooltip-text,
+.country-segment:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* New styling for the disassembly button tile */
+.disassemble-button {
+    background-color: #333 !important; /* Overrides the normal color */
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* New styling for the falling tiles */
+.falling-tile {
+    position: absolute;
+    opacity: 1;
+    transition: transform 1s ease-in, opacity 1s linear;
+}
+
+/* Media query for mobile to change to a 10-column grid */
+@media (max-width: 768px) {
+    #timeline-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+    }
+    .month-cell {
+        height: auto;
+        aspect-ratio: 1 / 1; /* Maintain a perfect square aspect ratio */
+        width: auto;
+    }
+}
+
+/* Scorecard styling */
+#scorecard-container {
+    margin-top: 30px;
+}
+#scorecard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.scorecard-title {
+    font-size: 12px; /* All fonts set to 12px */
+    font-weight: normal;
+    text-decoration: underline;
+    margin: 0;
+}
+#scorecard-grid {
+    display: grid;
+    /* Default to 6 columns for desktop */
+    grid-template-columns: repeat(6, 1fr);
+    font-size: 12px; /* All fonts set to 12px */
+    border: 1px solid #ccc;
+}
+
+/* Media query for mobile to change to a single column */
+@media (max-width: 768px) {
+    #scorecard-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+.scorecard-item {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-left: none;
+    text-align: left; /* Left-aligned text */
+}
+.scorecard-item:nth-child(6n+1) {
+     border-left: 1px solid #ccc;
+}
+
+/* Sorting button styling */
+#sort-button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    background-color: #e0e0e0;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 12px; /* All fonts set to 12px */
+}
+#sort-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* Country Bar Styling */
+#country-bar-container {
+    margin-top: 30px;
+}
+#country-bar {
+    display: flex;
+    width: 100%;
+    height: 24.75px; /* Same height as month cells */
+    border: none; /* Removed the black outline */
+    gap: 1px;
+    padding: 1px;
+}
+.country-segment {
+    height: 100%;
+    position: relative;
+    cursor: default;
+}
