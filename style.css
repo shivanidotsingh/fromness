@@ -133,3 +133,23 @@ body {
     cursor: default;
 }
 
+/* TESTING CLICK */
+#timeline-grid .month-cell.circle-tile {
+    border-radius: 50%; /* circle */
+    width: 25px;  /* or your tile width */
+    height: 25px; /* or your tile height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: inherit; /* keep original bg color */
+    cursor: pointer;
+}
+
+/* TESTING 18 */
+#timeline-grid .month-cell.circle-tile .circle-text {
+    font-size: 10px;       /* small font */
+    color: #000;           /* contrast color (adjust if needed) */
+    user-select: none;     /* prevent selection */
+    pointer-events: none;  /* clicks pass through text */
+}
+
