@@ -177,6 +177,28 @@ window.onload = function() {
 
         return { name: "Unknown", color: "#ccc" };
     }
+
+    const tiles = document.querySelectorAll('#timeline-grid .month-cell');
+    // Find first tile containing 'Ahmedabad' text
+    const ahmedabadTile = Array.from(tiles).find(tile => tile.textContent.includes('Ahmedabad'));
+
+    if (ahmedabadTile) {
+        ahmedabadTile.style.position = 'relative';  // for positioning the inner text span
+
+        ahmedabadTile.addEventListener('click', function() {
+            // Add circle class for styles
+            ahmedabadTile.classList.add('circle-tile');
+            // Clear existing text content
+            ahmedabadTile.textContent = '';
+
+            // Create small '18' text element inside
+            const smallText = document.createElement('span');
+            smallText.textContent = '18';
+            smallText.classList.add('circle-text');
+
+            ahmedabadTile.appendChild(smallText);
+        });
+    }
     
     // Function to render the scorecard based on sort type
     function renderScorecard() {
