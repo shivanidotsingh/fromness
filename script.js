@@ -8,8 +8,8 @@ window.onload = function() {
         { name: "Ahmedabad, India", country: "India", startYear: 2010, startMonth: 6, endYear: 2014, endMonth: 6, color: "#800080" },
         { name: "Mumbai, India", country: "India", startYear: 2014, startMonth: 7, endYear: 2015, endMonth: 6, color: "#FF00FF" },
         { name: "Bangalore, India", country: "India", startYear: 2015, startMonth: 10, endYear: 2019, endMonth: 7, color: "#FF1493" },
-        { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 1, color: "#8B0000" }, 
-        { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 2, endYear: 2025, endMonth: 7, color: "#FF0000" },
+        { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 1, color: "#8B0000" },
+        { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 2, endYear: 2025, endMonth: 8, color: "#FF0000" },
         // Vacation and Internship data
         { name: "Lucknow, India (Vacation)", country: "India", isVacation: true, color: "#0000FF" },
         { name: "Abu Dhabi, UAE (Vacation)", country: "Gulf (Qatar and UAE)", isVacation: true, color: "#00CED1" },
@@ -17,28 +17,17 @@ window.onload = function() {
         { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [7, 8, 9] } // July, Aug, Sep
     ];
 
-    // The timeline begins in June 1992.
+    // The timeline begins in June 1992 and ends in August 2025.
     const startYear = 1992;
     const startMonth = 6;
-    
-    // Set the end date dynamically, with a cap at March 2026.
-    const today = new Date();
-    const capYear = 2026;
-    const capMonth = 3; // March
-    
-    let endYear = today.getFullYear();
-    let endMonth = today.getMonth() + 1; // getMonth() is 0-indexed
-
-    if (endYear > capYear || (endYear === capYear && endMonth > capMonth)) {
-        endYear = capYear;
-        endMonth = capMonth;
-    }
+    const endYear = 2025;
+    const endMonth = 8; // Corrected to August 2025
 
     const gridContainer = document.getElementById('timeline-grid');
     const scorecardGrid = document.getElementById('scorecard-grid');
     const sortButton = document.getElementById('sort-button');
     const countryBar = document.getElementById('country-bar');
-    
+
     let isSortedByTime = false;
 
     // Helper function to find city data objects for easy access
@@ -58,7 +47,7 @@ window.onload = function() {
     const abuDhabiVacationData = findCity("Abu Dhabi, UAE (Vacation)");
     const goaInternshipData = findCity("Goa, India (Internship)");
     const dubaiInternshipData = findCity("Dubai, UAE (Internship)");
-    
+
     // --- Timeline Generation Logic ---
     const chronologicalTimelineArray = [];
     const finalCityMonths = {};
@@ -70,14 +59,14 @@ window.onload = function() {
     let currentMonth = startMonth;
 
     const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
-    
+
     for (let i = 0; i < totalMonths; i++) {
         let city = null;
 
         // Force the very first tile to be Lucknow
         if (i === 0) {
             city = lucknowData;
-        } 
+        }
         // Handle internships first as they have the highest priority
         else if (currentYear === goaInternshipData.internshipYear && goaInternshipData.internshipMonths.includes(currentMonth)) {
             city = goaInternshipData;
@@ -121,7 +110,7 @@ window.onload = function() {
                  city = dehradunData;
             }
         }
-        
+
         // Handle main city periods (lowest priority)
         if (!city) {
             if (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth))) {
@@ -145,13 +134,13 @@ window.onload = function() {
 
         // Push the determined city to the timeline array
         chronologicalTimelineArray.push(city);
-        
+
         // Count months for scorecard and country bar
         const baseCityName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
-        
+
         finalCityMonths[baseCityName] = (finalCityMonths[baseCityName] || 0) + 1;
         cityColors[baseCityName] = timelineData.find(d => d.name.startsWith(baseCityName))?.color || city.color;
-        
+
         if (city.country) {
              countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
         }
@@ -174,9 +163,9 @@ window.onload = function() {
     function getDurationSortedTimeline() {
         const durationSortedCities = Object.entries(finalCityMonths)
             .map(([name, months]) => ({ name, months, color: cityColors[name] }));
-        
+
         durationSortedCities.sort((a, b) => b.months - a.months);
-        
+
         const sortedTimeline = [];
         durationSortedCities.forEach(city => {
             const originalCity = timelineData.find(d => d.name.startsWith(city.name));
@@ -186,7 +175,7 @@ window.onload = function() {
         });
         return sortedTimeline;
     }
-    
+
     const durationTimelineArray = getDurationSortedTimeline();
 
     // Function to render the timeline grid
@@ -196,7 +185,7 @@ window.onload = function() {
             const monthDiv = document.createElement('div');
             monthDiv.className = `month-cell`;
             monthDiv.style.backgroundColor = city.color;
-            
+
             // Remove the vacation/internship suffixes from the tooltip
             const tooltipName = city.name.replace(' (Vacation)', '').replace(' (Internship)', '');
             monthDiv.innerHTML = `<span class="tooltip-text">${tooltipName}</span>`;
@@ -210,15 +199,15 @@ window.onload = function() {
                     monthDiv.style.cursor = 'default';
                 });
             }
-            
+
             gridContainer.appendChild(monthDiv);
         });
     }
-    
+
     // Function to render the scorecard based on sort type
     function renderScorecard() {
         scorecardGrid.innerHTML = '';
-        
+
         let cityYearTotals = Object.entries(finalCityMonths).map(([name, months]) => ({
             name: name,
             months: months,
@@ -234,7 +223,7 @@ window.onload = function() {
         cityYearTotals.forEach(item => {
             const scorecardItem = document.createElement('div');
             scorecardItem.className = 'scorecard-item';
-            
+
             let displayTime;
             // Correctly display months for stays less than a year
             if (item.months < 12) {
@@ -243,17 +232,17 @@ window.onload = function() {
                 const years = item.months / 12;
                 displayTime = `${years.toFixed(2)} years`;
             }
-            
+
             scorecardItem.innerHTML = `<span style="color: ${item.color};">${item.name}</span>: ${displayTime}`;
             scorecardGrid.appendChild(scorecardItem);
         });
     }
-    
+
     // Function to render the country bar
     function renderCountryBar() {
         countryBar.innerHTML = '';
         const countries = Object.keys(countryMonths);
-        
+
         const countryBarColors = {
             "Gulf (Qatar and UAE)": "linear-gradient(to right, #008080, #00CED1, #2E8B57)",
             "India": "linear-gradient(to right, #0000FF, #4B0082, #800080, #FF00FF, #FF1493, #FFA500)",
@@ -270,7 +259,7 @@ window.onload = function() {
             segmentDiv.className = 'country-segment';
             segmentDiv.style.width = `${percentage}%`;
             segmentDiv.style.background = countryBarColors[country] || "#ccc";
-            
+
             let displayTime;
             const years = months / 12;
             displayTime = `${years.toFixed(2)} years`;
