@@ -17,10 +17,10 @@
             margin: 0 auto;
         }
         #timeline-grid {
-            display: flex;
+            display: flex; /* Default is a flexible layout for desktop */
             flex-wrap: wrap;
             gap: 1px;
-            border: none; /* Removed the black outline */
+            border: none;
             padding: 1px;
         }
         .month-cell {
@@ -53,11 +53,17 @@
             visibility: visible;
             opacity: 1;
         }
-        /* Make cells larger for mobile for better touch experience */
+        
+        /* Media query for mobile to change to a 10-column grid */
         @media (max-width: 768px) {
+            #timeline-grid {
+                display: grid;
+                grid-template-columns: repeat(10, 1fr);
+            }
             .month-cell {
-                width: 28.4625px; /* 15% larger */
-                height: 28.4625px; /* 15% larger */
+                height: auto;
+                aspect-ratio: 1 / 1; /* Maintain a perfect square aspect ratio */
+                width: auto;
             }
         }
 
@@ -137,8 +143,7 @@
 </head>
 <body>
     <div class="container">
-        <p>Visual answer to the question, 'where are you from?'.
-            Each square represents a month. Each color represents a city I've lived in.</p>
+        <p>Visual answer to the question, 'where are you from?'. Each square represents a month. Each color represents a city.</p>
         <div id="timeline-grid"></div>
         <div id="scorecard-container">
             <div id="scorecard-header">
