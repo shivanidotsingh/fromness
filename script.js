@@ -266,7 +266,7 @@ window.onload = function() {
     renderScorecard();
     renderCountryBar();
 
-    // Gravity stacking trigger
+// Gravity Test
 document.getElementById("gravity-trigger").addEventListener("click", function() {
     // 1. Add gravity mode to grid
     gridContainer.classList.add("gravity-mode");
@@ -298,7 +298,6 @@ document.getElementById("gravity-trigger").addEventListener("click", function() 
         cell.setAttribute('data-col', col);
     });
 
-    // 5. Gravity Test
     setTimeout(() => {
         // Recompute stacking (bottom up), stacking cells in columns
         // First, reverse so bottom row animates first for visible "fall"
@@ -310,5 +309,21 @@ document.getElementById("gravity-trigger").addEventListener("click", function() 
         });
     }, 100); // Let browser paint first layout before animating
 });
+
+    // Select all month cells after rendering
+const monthCells = document.querySelectorAll('#timeline-grid .month-cell');
+
+// Pick a random cell index to be the secret trigger
+const secretIndex = Math.floor(Math.random() * monthCells.length);
+const secretCell = monthCells[secretIndex];
+
+// Attach a click event listener to the secret cell that triggers your gravity function
+secretCell.addEventListener('click', () => {
+    console.log("Secret cell clicked!");
+
+    // Your gravity stacking trigger code here, or call the function if defined
+    document.getElementById("gravity-trigger").click();
+});
+    
 
 };
