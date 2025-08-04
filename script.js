@@ -127,65 +127,64 @@ window.onload = function() {
 
     // Function to determine which city tile should be displayed for a given month index
     function getCityForMonth(monthIndex) {
-        if (monthIndex === 0) return lucknowData;
-        
         const totalMonthCountFromStart = monthIndex + startMonthIndex;
         const currentYear = startYear + Math.floor(totalMonthCountFromStart / 12);
-        const currentMonth = totalMonthCountFromStart % 12;
+        const currentMonth = totalMonthCountFromStart % 12; // 0-indexed month
 
-        if (goaData && currentYear === goaData.internshipYear && goaData.internshipMonths.includes(currentMonth + 1)) return goaData;
+        // Check for internships first as they override
+        const internship = timelineData.find(d => d.isInternship && d.internshipYear === currentYear && d.internshipMonths.includes(currentMonth + 1));
+        if (internship) return internship;
+
+        // Check for each city chronologically
         
-        if (currentYear >= stockholmData.startYear && (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonthIndex))) {
-            const stockholmStartMonthAbsolute = (stockholmData.startYear * 12) + (stockholmData.startMonth - 1);
-            const currentMonthAbsolute = (currentYear * 12) + currentMonth;
-            const monthsInStockholmPeriod = currentMonthAbsolute - stockholmStartMonthAbsolute;
-            if (monthsInStockholmPeriod > 0 && monthsInStockholmPeriod % 12 === 11) return lucknowData;
+        // Stockholm (Feb 2023 - Jul 2025)
+        if ((currentYear === 2023 && currentMonth >= 1) || (currentYear > 2023 && currentYear < 2025) || (currentYear === 2025 && currentMonth <= 6)) {
             return stockholmData;
         }
 
-        if ((currentYear > sanFranciscoData.startYear && currentYear < sanFranciscoData.endYear) || (currentYear === sanFranciscoData.startYear && currentMonth >= sanFranciscoData.startMonth - 1) || (currentYear === sanFranciscoData.endYear && currentMonth < sanFranciscoData.endMonth)) return sanFranciscoData;
-        
-        if ((currentYear > mumbaiData.startYear && currentYear < mumbaiData.endYear) || (currentYear === mumbaiData.startYear && currentMonth >= mumbaiData.startMonth - 1) || (currentYear === mumbaiData.endYear && currentMonth < mumbaiData.endMonth)) return mumbaiData;
-        
-        if (currentYear === dubaiData.internshipYear && dubaiData.internshipMonths.includes(currentMonth + 1)) return dubaiData;
-        
-        if (currentYear >= bangaloreData.startYear && (currentYear < 2019 || (currentYear === 2019 && currentMonth <= 6))) return bangaloreData;
-
-        if (currentYear >= 2010 && (currentYear < 2014 || (currentYear === 2014 && currentMonth <= 5))) {
-            const ahmedabadStartMonthAbsolute = (2010 * 12) + 5;
-            const currentMonthAbsolute = (currentYear * 12) + currentMonth;
-            const monthsInAhmedabadPeriod = currentMonthAbsolute - ahmedabadStartMonthAbsolute;
-            if (monthsInAhmedabadPeriod > 0 && monthsInAhmedabadPeriod % 6 === 0) return lucknowData;
-            return ahmedabadData;
+        // San Francisco (Aug 2019 - Jan 2023)
+        if ((currentYear === 2019 && currentMonth >= 7) || (currentYear > 2019 && currentYear < 2023) || (currentYear === 2023 && currentMonth === 0)) {
+            return sanFranciscoData;
         }
 
+        // Bangalore (Oct 2015 - Jul 2019)
+        if ((currentYear === 2015 && currentMonth >= 9) || (currentYear > 2015 && currentYear < 2019) || (currentYear === 2019 && currentMonth <= 6)) {
+            return bangaloreData;
+        }
+
+        // Mumbai (July 2014 - June 2015)
+        if ((currentYear === 2014 && currentMonth >= 6) || (currentYear === 2015 && currentMonth <= 5)) {
+            return mumbaiData;
+        }
+
+        // Ahmedabad (June 2010 - June 2014)
+        if ((currentYear === 2010 && currentMonth >= 5) || (currentYear > 2010 && currentYear < 2014) || (currentYear === 2014 && currentMonth <= 5)) {
+            return ahmedabadData;
+        }
+        
+        // Corrected gap: April 2010 is Lucknow, May 2010 is Abu Dhabi
         if (currentYear === 2010) {
             if (currentMonth === 3) return lucknowData;
             if (currentMonth === 4) return abuDhabiData;
         }
-        
+
+        // Dehradun (April 2003 - March 2010)
         if (currentYear >= 2003 && (currentYear < 2010 || (currentYear === 2010 && currentMonth <= 2))) {
-            const month = currentMonth + 1;
-            if (month === 6 || month === 12) return lucknowData;
-            else if (month === 7 || month === 1) return abuDhabiData;
-            else return dehradunData;
+            return dehradunData;
+        }
+
+        // Lucknow (April 2002 - March 2003)
+        if (currentYear === 2002 && currentMonth >= 3 || currentYear === 2003 && currentMonth <= 2) {
+            return lucknowData;
         }
         
-        if (currentYear >= 2002 && (currentYear < 2003 || (currentYear === 2003 && currentMonth <= 2))) return lucknowData;
-
+        // Abu Dhabi (Jan 1997 - March 2002)
         if (currentYear >= 1997 && (currentYear < 2002 || (currentYear === 2002 && currentMonth <= 2))) {
-            const abuDhabiStartMonthAbsolute = (1997 * 12) + 0;
-            const currentMonthAbsolute = (currentYear * 12) + currentMonth;
-            const monthsInAbuDhabiPeriod = currentMonthAbsolute - abuDhabiStartMonthAbsolute;
-            if (monthsInAbuDhabiPeriod > 0 && monthsInAbuDhabiPeriod % 12 === 11) return lucknowData;
             return abuDhabiData;
         }
-        
+
+        // Doha (June 1992 - Dec 1996)
         if (currentYear >= 1992 && (currentYear < 1997 || (currentYear === 1996 && currentMonth <= 11))) {
-            const dohaStartMonthAbsolute = (1992 * 12) + 5;
-            const currentMonthAbsolute = (currentYear * 12) + currentMonth;
-            const monthsInDohaPeriod = currentMonthAbsolute - dohaStartMonthAbsolute;
-            if (monthsInDohaPeriod > 0 && monthsInDohaPeriod % 12 === 11) return lucknowData;
             return dohaData;
         }
 
@@ -217,8 +216,13 @@ window.onload = function() {
             scorecardItem.className = 'scorecard-item';
             
             let displayTime;
-            const years = item.months / 12;
-            displayTime = `${years.toFixed(2)} years`;
+            // Check if the item is an internship to display in months
+            if (item.name.includes("(Internship)")) {
+                displayTime = `${item.months} months`;
+            } else {
+                const years = item.months / 12;
+                displayTime = `${years.toFixed(2)} years`;
+            }
             
             const cityName = item.name.split(',')[0];
             scorecardItem.innerHTML = `<span style="color: ${item.color};">${cityName}</span>: ${displayTime}`;
