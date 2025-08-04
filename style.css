@@ -135,21 +135,21 @@ body {
 
 /* TESTING CLICK */
 #timeline-grid .month-cell.circle-tile {
-    border-radius: 50%; /* circle */
-    width: 25px;  /* or your tile width */
-    height: 25px; /* or your tile height */
+    border-radius: 50%;         /* make the tile a perfect circle */
+    width: 25px;                /* keep original tile size */
+    height: 25px;               /* keep original tile size */
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: inherit; /* keep original bg color */
+    align-items: center;        /* vertical center */
+    justify-content: center;    /* horizontal center */
+    background-color: inherit;  /* preserve original bg */
     cursor: pointer;
+    user-select: none;          /* prevent text highlight */
 }
 
-/* TESTING 18 */
 #timeline-grid .month-cell.circle-tile .circle-text {
-    font-size: 10px;       /* small font */
-    color: #000;           /* contrast color (adjust if needed) */
-    user-select: none;     /* prevent selection */
-    pointer-events: none;  /* clicks pass through text */
+    font-size: 10px;            /* small font for '18' */
+    color: #000;                /* black text for contrast */
+    pointer-events: none;       /* pass clicks through text */
+    user-select: none;
 }
 
