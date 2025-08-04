@@ -134,10 +134,13 @@ body {
 }
 
 /* gravity test */
-#timeline-grid.gravity-mode {
-  position: relative !important;
-  min-height: 400px;
-  height: 600px;
+#timeline-grid.gravity-mode .month-cell {
+    grid-column-start: unset !important;
+    grid-row-start: unset !important;
 }
 
+#timeline-grid.gravity-mode {
+    position: relative !important;
+    height: 600px;  /* Adjust as desired */
+}
 
