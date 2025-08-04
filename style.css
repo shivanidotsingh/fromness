@@ -88,6 +88,10 @@ body {
     #scorecard-grid {
         grid-template-columns: repeat(1, 1fr);
     }
+    .month-cell {
+    width: 30px;
+    height: 30px;
+    }
 }
 
 .scorecard-item {
