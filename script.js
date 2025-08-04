@@ -80,16 +80,16 @@ window.onload = function() {
             const dehradunMonthsPassed = (currentYear - dehradunData.startYear) * 12 + (currentMonth - dehradunData.startMonth);
             // We use > 0 to account for the first month which should be Dehradun
             if (dehradunMonthsPassed > 0) {
-                 const cycleIndex = dehradunMonthsPassed % 6;
-                 if (cycleIndex === 4) { // The 5th month of the cycle (index 4)
-                     city = lucknowVacationData;
-                 } else if (cycleIndex === 5) { // The 6th month of the cycle (index 5)
-                     city = abuDhabiVacationData;
-                 } else {
-                     city = dehradunData;
-                 }
+                const cycleIndex = dehradunMonthsPassed % 6;
+                if (cycleIndex === 4) { // The 5th month of the cycle (index 4)
+                    city = lucknowVacationData;
+                } else if (cycleIndex === 5) { // The 6th month of the cycle (index 5)
+                    city = abuDhabiVacationData;
+                } else {
+                    city = dehradunData;
+                }
             } else {
-                 city = dehradunData;
+                city = dehradunData;
             }
         }
         // Doha and Abu Dhabi breaks: 11 tiles of main city, 1 tile of Lucknow
@@ -164,7 +164,7 @@ window.onload = function() {
         cityColors[baseCityName] = timelineData.find(d => d.name.startsWith(baseCityName))?.color || city.color;
 
         if (city.country) {
-             countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
+            countryMonths[city.country] = (countryMonths[city.country] || 0) + 1;
         }
 
         // Keep track of the first appearance year for chronological sorting
