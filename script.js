@@ -265,4 +265,44 @@ window.onload = function() {
     renderTimeline(chronologicalTimelineArray);
     renderScorecard();
     renderCountryBar();
+
+    // --- Gravity stacking collapse trigger ---
+    const gravityButton = document.getElementById("gravity-trigger");
+    gravityButton.addEventListener("click", function() {
+        const gridContainer = document.getElementById('timeline-grid');
+        gridContainer.classList.add("gravity-mode");
+
+        // Responsive column count (matches your grid's CSS)
+        const columns = window.innerWidth < 768 ? 10 : 6;
+
+        const cells = Array.from(gridContainer.children);
+        if(cells.length === 0) return; // safeguard
+
+        const cellWidth = cells[0].offsetWidth;
+        const cellHeight = cells[0].offsetHeight;
+
+        const stacks = new Array(columns).fill(0);
+
+        cells.forEach((cell, i) => {
+            const col = i % columns;
+            const row = Math.floor(i / columns);
+
+            cell.style.position = 'absolute';
+            cell.style.left = (col * (cellWidth + 1)) + 'px';
+            cell.style.top = (row * (cellHeight + 1)) + 'px';
+            cell.style.transition = 'top 1s cubic-bezier(.18,.89,.32,1.28), left 1s cubic-bezier(.18,.89,.32,1.28)';
+            cell.style.zIndex = 2;
+
+            cell.setAttribute('data-col', col);
+        });
+
+        setTimeout(() => {
+            cells.reverse().forEach(cell => {
+                const col = parseInt(cell.getAttribute('data-col'));
+                const stackHeight = stacks[col];
+                cell.style.top = (gridContainer.offsetHeight - cellHeight * (stackHeight + 1)) + 'px';
+                stacks[col]++;
+            });
+        }, 100);
+    });
 };
