@@ -55,51 +55,35 @@ window.onload = function() {
 
     // Gravity stacking trigger linked to visible button
     document.getElementById("gravity-trigger").addEventListener("click", function() {
-        gridContainer.classList.add("gravity-mode");
+    gridContainer.classList.add("gravity-mode");
 
-        let columns = window.innerWidth < 768 ? 10 : 6;
+    let columns = window.innerWidth < 768 ? 10 : 6;
 
-        const cells = Array.from(gridContainer.children);
-        const cellWidth = cells[0].offsetWidth;
-        const cellHeight = cells[0].offsetHeight;
-        let stacks = Array(columns).fill(0);
+    const cells = Array.from(gridContainer.children);
+    const cellWidth = cells[0].offsetWidth;
+    const cellHeight = cells[0].offsetHeight;
+    let stacks = Array(columns).fill(0);
 
-        cells.forEach((cell, i) => {
-            let col = i % columns;
-            let row = Math.floor(i / columns);
+    cells.forEach((cell, i) => {
+        let col = i % columns;
+        let row = Math.floor(i / columns);
 
-            cell.style.position = 'absolute';
-            cell.style.left = (col * (cellWidth + 1)) + 'px';
-            cell.style.top = (row * (cellHeight + 1)) + 'px';
-            cell.style.transition = 'top 1s cubic-bezier(.18,.89,.32,1.28), left 1s cubic-bezier(.18,.89,.32,1.28)';
-            cell.style.zIndex = 2;
-            cell.setAttribute('data-col', col);
-        });
-
-        setTimeout(() => {
-            cells.reverse().forEach(cell => {
-                const col = parseInt(cell.getAttribute('data-col'));
-                const stackHeight = stacks[col];
-                cell.style.top = (gridContainer.offsetHeight - cellHeight * (stackHeight + 1)) + 'px';
-                stacks[col]++;
-            });
-        }, 100);
+        cell.style.position = 'absolute';
+        cell.style.left = (col * (cellWidth + 1)) + 'px';
+        cell.style.top = (row * (cellHeight + 1)) + 'px';
+        cell.style.transition = 'top 1s cubic-bezier(.18,.89,.32,1.28), left 1s cubic-bezier(.18,.89,.32,1.28)';
+        cell.style.zIndex = 2;
+        cell.setAttribute('data-col', col);
     });
 
-    // Assign the 5th cell in 5th row as the secret clickable tile, with pointer cursor for testing
-    const monthCells = document.querySelectorAll('#timeline-grid .month-cell');
-    const row = 4; // zero-indexed
-    const col = 4;
-    const columns = window.innerWidth < 768 ? 10 : 6;
-    const triggerIndex = row * columns + col;
-
-    if (monthCells[triggerIndex]) {
-        const secretCell = monthCells[triggerIndex];
-        secretCell.classList.add('secret-trigger'); // Add pointer cursor via CSS
-
-        secretCell.addEventListener('click', () => {
-            console.log("Secret cell clicked!");
-            document.getElementById("gravity-trigger").click();
+    setTimeout(() => {
+        cells.reverse().forEach(cell => {
+            const col = parseInt(cell.getAttribute('data-col'));
+            const stackHeight = stacks[col];
+            cell.style.top = (gridContainer.offsetHeight - cellHeight * (stackHeight + 1)) + 'px';
+            stacks[col]++;
         });
-    }
+    }, 100);
+});
+
 };
