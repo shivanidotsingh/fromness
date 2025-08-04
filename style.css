@@ -60,19 +60,6 @@ body {
     font-size: 10px; /* Adjust size as needed to make it "tiny" */
 }
 
-/* Media query for mobile to change to a 10-column grid */
-@media (max-width: 768px) {
-    #timeline-grid {
-        display: grid;
-        grid-template-columns: repeat(10, 1fr);
-    }
-    .month-cell {
-        height: auto;
-        aspect-ratio: 1 / 1; /* Maintain a perfect square aspect ratio */
-        width: auto;
-    }
-}
-
 /* Scorecard styling */
 #scorecard-container {
     margin-top: 30px;
