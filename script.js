@@ -73,13 +73,13 @@ window.onload = function() {
         } else if (currentYear === dubaiInternshipData.internshipYear && dubaiInternshipData.internshipMonths.includes(currentMonth)) {
             city = dubaiInternshipData;
         }
-        // Handle special vacation breaks based on repeating cycles
+        // Dehradun cycle break (4 months Dehradun, 1 Lucknow, 1 Abu Dhabi)
         else if (
-            // Dehradun cycle break (4 months Dehradun, 1 Lucknow, 1 Abu Dhabi)
             (currentYear >= dehradunData.startYear && (currentYear < dehradunData.endYear || (currentYear === dehradunData.endYear && currentMonth <= dehradunData.endMonth)))
         ) {
             const dehradunMonthsPassed = (currentYear - dehradunData.startYear) * 12 + (currentMonth - dehradunData.startMonth);
-            if (dehradunMonthsPassed > 0) { // Cycle starts after the first month
+            // We use > 0 to account for the first month which should be Dehradun
+            if (dehradunMonthsPassed > 0) {
                  const cycleIndex = dehradunMonthsPassed % 6;
                  if (cycleIndex === 4) { // The 5th month of the cycle (index 4)
                      city = lucknowVacationData;
@@ -90,6 +90,23 @@ window.onload = function() {
                  }
             } else {
                  city = dehradunData;
+            }
+        }
+        // Doha and Abu Dhabi breaks: 11 tiles of main city, 1 tile of Lucknow
+        else if (
+            (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth))) ||
+            (currentYear >= abuDhabiData.startYear && (currentYear < abuDhabiData.endYear || (currentYear === abuDhabiData.endYear && currentMonth <= abuDhabiData.endMonth)))
+        ) {
+            const periodStartYear = currentYear >= dohaData.startYear && currentYear <= dohaData.endYear ? dohaData.startYear : abuDhabiData.startYear;
+            const periodStartMonth = currentYear >= dohaData.startYear && currentYear <= dohaData.endYear ? dohaData.startMonth : abuDhabiData.startMonth;
+            const monthsPassed = (currentYear - periodStartYear) * 12 + (currentMonth - periodStartMonth);
+            const cycleIndex = monthsPassed % 12;
+            if (cycleIndex === 11) {
+                city = lucknowVacationData;
+            } else if (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth))) {
+                city = dohaData;
+            } else {
+                city = abuDhabiData;
             }
         }
         else if (
@@ -110,10 +127,8 @@ window.onload = function() {
                 city = stockholmData;
             }
         }
-        // Handle special single-month vacation breaks (e.g., during Doha/Abu Dhabi periods)
+        // Special single-month vacation breaks that were originally requested
         else if (
-            (currentYear >= dohaData.startYear && (currentYear < dohaData.endYear || (currentYear === dohaData.endYear && currentMonth <= dohaData.endMonth)) && currentMonth === 7) ||
-            (currentYear >= abuDhabiData.startYear && (currentYear < abuDhabiData.endYear || (currentYear === abuDhabiData.endYear && currentMonth <= abuDhabiData.endMonth)) && currentMonth === 7) ||
             (currentYear === 2010 && currentMonth === 4) ||
             (currentYear === 2010 && currentMonth === 5)
         ) {
