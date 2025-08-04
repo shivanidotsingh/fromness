@@ -108,8 +108,8 @@ window.onload = function() {
             
             monthDiv.innerHTML = `<span class="tooltip-text">${city.name}</span>`;
 
-            // Identify the 216th tile (index 215) and make it clickable
-            if (index === 215) {
+            // Identify the 217th tile (index 216) and make it clickable
+            if (index === 216) {
                 monthDiv.style.cursor = 'pointer';
                 
                 // Add a click listener to the tile
