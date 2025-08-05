@@ -1,7 +1,10 @@
 window.onload = function() {
     // Data array to hold city information and colors
     const timelineData = [
-        { name: "Doha, Qatar", country: "Gulf (Qatar and UAE)", startYear: 1992, startMonth: 7, endYear: 1997, endMonth: 6, color: "#008080" },
+        // Updated: Lucknow is now from July 1992 to May 1993
+        { name: "Lucknow, India", country: "India", startYear: 1992, startMonth: 7, endYear: 1993, endMonth: 5, color: "#0000FF" },
+        // Updated: Doha starts in June 1993
+        { name: "Doha, Qatar", country: "Gulf (Qatar and UAE)", startYear: 1993, startMonth: 6, endYear: 1997, endMonth: 6, color: "#008080" },
         { name: "Abu Dhabi, UAE", country: "Gulf (Qatar and UAE)", startYear: 1997, startMonth: 7, endYear: 2002, endMonth: 3, color: "#00CED1" },
         { name: "Lucknow, India", country: "India", startYear: 2002, startMonth: 4, endYear: 2003, endMonth: 3, color: "#0000FF" },
         { name: "Dehradun, India", country: "India", startYear: 2003, startMonth: 4, endYear: 2010, endMonth: 3, color: "#4B0082" },
@@ -30,12 +33,13 @@ window.onload = function() {
     let isSortedByTime = false;
 
     // Helper function to find city data by name
-    const findCity = (name) => timelineData.find(d => d.name === name);
+    const findCity = (name) => timelineData.find(d => d.name.startsWith(name));
 
     // Get specific city data for easy access
     const dohaData = findCity("Doha, Qatar");
     const abuDhabiData = findCity("Abu Dhabi, UAE");
-    const lucknowData = findCity("Lucknow, India");
+    const lucknowDataEarly = timelineData.find(d => d.startYear === 1992 && d.name.startsWith("Lucknow"));
+    const lucknowDataMain = timelineData.find(d => d.startYear === 2002 && d.name.startsWith("Lucknow"));
     const dehradunData = findCity("Dehradun, India");
     const ahmedabadData = findCity("Ahmedabad, India");
     const mumbaiData = findCity("Mumbai, India");
@@ -98,7 +102,7 @@ window.onload = function() {
         
         // New logic to fill the gap between Dehradun and Ahmedabad
         if (year === 2010 && (month === 4 || month === 5)) {
-            return lucknowData;
+            return lucknowDataMain;
         }
 
         // Priority 3: Assign main cities chronologically
@@ -108,9 +112,11 @@ window.onload = function() {
         if (isWithinPeriod(mumbaiData)) return mumbaiData;
         if (isWithinPeriod(ahmedabadData)) return ahmedabadData;
         if (isWithinPeriod(dehradunData)) return dehradunData;
-        if (isWithinPeriod(lucknowData)) return lucknowData;
+        if (isWithinPeriod(lucknowDataMain)) return lucknowDataMain;
         if (isWithinPeriod(abuDhabiData)) return abuDhabiData;
         if (isWithinPeriod(dohaData)) return dohaData;
+        if (isWithinPeriod(lucknowDataEarly)) return lucknowDataEarly;
+
 
         // Fallback for any gaps in the timeline
         return { name: "Unknown", color: "#ccc" };
