@@ -12,7 +12,7 @@ window.onload = function() {
     { name: "Mumbai, India", country: "India", startYear: 2014, startMonth: 7, endYear: 2015, endMonth: 6, color: "#FF00FF" },
     { name: "Bangalore, India", country: "India", startYear: 2015, startMonth: 10, endYear: 2019, endMonth: 7, color: "#FF1493" },
     { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 3, color: "#8B0000" },
-    { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 4, endYear: 2026, endMonth: 03, color: "#FF0000" },
+    { name: "Stockholm, Sweden", ..., startYear: 2023, startMonth: 4, endYear: endYear, endMonth: endMonth, color: "#FF0000" },
 
     // Vacation and Internship data
     { name: "Lucknow, India (Vacation)", country: "India", isVacation: true, color: "#0000FF" },
@@ -21,11 +21,14 @@ window.onload = function() {
     { name: "Dubai, UAE (Internship)", country: "Gulf (Qatar and UAE)", color: "#2E8B57", isInternship: true, internshipYear: 2015, internshipMonths: [7, 8, 9] } // Jul, Aug, Sep
   ];
 
-  // Keep the start at July 1992 to yield 400 tiles through Oct 2025
+  // Keep the start at July 1992 
   const startYear = 1992;
   const startMonth = 7;
-  const endYear = 2026;
-  const endMonth = 03; // 
+
+  const today = new Date();
+  const endYear = today.getFullYear();
+  const endMonth = today.getMonth() + 1; // getMonth() is 0-indexed
+
 
   const gridContainer = document.getElementById('timeline-grid');
   const scorecardGrid = document.getElementById('scorecard-grid');
@@ -63,7 +66,7 @@ window.onload = function() {
   let currentYear = startYear;
   let currentMonth = startMonth;
 
-  const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1; // 400
+  const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 
   // ✅ Fix #1: isWithinPeriod uses the provided (year, month)
   function isWithinPeriod(data, year, month) {
