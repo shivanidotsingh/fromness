@@ -15,7 +15,7 @@ window.onload = function() {
     { name: "Bangalore, India", country: "India", startYear: 2015, startMonth: 10, endYear: 2019, endMonth: 7, color: "#FF1493" },
     { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 2, color: "#8B0000" },
     { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 4, endYear: endYear, endMonth: endMonth, color: "#FF0000" },
-
+    
     // Vacation and Internship data
     { name: "Lucknow, India (Vacation)", country: "India", isVacation: true, color: "#0000FF" },
     { name: "Abu Dhabi, UAE (Vacation)", country: "Gulf (Qatar and UAE)", isVacation: true, color: "#00CED1" },
