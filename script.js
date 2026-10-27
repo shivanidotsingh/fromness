@@ -14,7 +14,6 @@ window.onload = function() {
     { name: "Mumbai, India", country: "India", startYear: 2014, startMonth: 7, endYear: 2015, endMonth: 6, color: "#FF00FF" },
     { name: "Bangalore, India", country: "India", startYear: 2015, startMonth: 10, endYear: 2019, endMonth: 7, color: "#FF1493" },
     { name: "San Francisco, USA", country: "USA", startYear: 2019, startMonth: 8, endYear: 2023, endMonth: 2, color: "#8B0000" },
-    { name: "Lucknow, India", country: "India", startYear: 2023, startMonth: 3, endYear: 2023, endMonth: 3, color: "#0000FF" },
     { name: "Stockholm, Sweden", country: "Sweden", startYear: 2023, startMonth: 4, endYear: endYear, endMonth: endMonth, color: "#FF0000" },
 
     // Vacation and Internship data
@@ -97,7 +96,8 @@ window.onload = function() {
     if (year === 2010 && (month === 4 || month === 5)) {
       return lucknowDataMain;
     }
-
+    if (year === 2023 && month === 3) return lucknowVacationData;
+    
     if (isWithinPeriod(stockholmData, year, month))    return stockholmData;
     if (isWithinPeriod(sanFranciscoData, year, month)) return sanFranciscoData;
     if (isWithinPeriod(bangaloreData, year, month))    return bangaloreData;
